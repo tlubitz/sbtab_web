@@ -16,9 +16,9 @@ except: import misc
 def sheets(self):  # Added to excess sheets of Databook
     return self._datasets
 try:
-    tablib.Databook.sheets
+    tablib.core.Databook.sheets
 except:
-    tablib.Databook.sheets = sheets
+    tablib.core.Databook.sheets = sheets
 
 def importSetNew(sbtabfile,filename,separator=None):
     mimetypes.init()
@@ -172,7 +172,7 @@ def loadTSV(fpath, headers):
 
 def haveXLS(file,headers,set_only):
 
-    dbook = tablib.Databook()
+    dbook = tablib.core.Databook()
     xl = tablib.packages.xlrd.open_workbook(file_contents=file)
 
     for sheetname in xl.sheet_names():
@@ -191,7 +191,7 @@ def haveXLS(file,headers,set_only):
         return dbook   
 
 def loadXLS(fpath, headers, set_only):
-    dbook = tablib.Databook()
+    dbook = tablib.core.Databook()
     f = open(fpath, 'rb')
     xl = tablib.packages.xlrd.open_workbook(file_contents=f.read())
     for sheetname in xl.sheet_names():
@@ -281,7 +281,7 @@ def loadODS(fpath, headers, set_only):
         def getSheet(self, name):
             return self.SHEETS[name]
     from tablib.packages.xlrd import timemachine
-    dbook = tablib.Databook()
+    dbook = tablib.core.Databook()
     f = open(fpath, 'rb')
     od = ODSReader(timemachine.BYTES_IO(f.read()))  # returns dict with sheetnames as keys
     for sheet in sorted(od.SHEETS.iterkeys()):

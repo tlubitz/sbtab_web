@@ -1,22 +1,20 @@
 {{extend 'layout2.html'}}
 <p>
 Information on the SBtab validator can be found in the <a href="/sbtab_web/static/files/validator_manual.pdf">manual</a>.<br>
-Currently, the definition file <b>{{=DEF_FILE_NAME[0]}}</b> is used for validation.
 </p>
 
 <h2>SBtab online validator</h2>
-
 {{=UPL_FORM}}
 
 {{if NAME_LIST:}}
-
+BLAP
 {{displayedf = []}}
 {{displayedg = []}}
 
 <table border="0">
   {{for pos2,g in enumerate(DOC_NAMES):}}
-    {{if not g in displayedg:}}
-    <table border="1" rules="rows">
+  {{if not g in displayedg:}}
+  <table border="1" rules="rows">
     <td bgcolor="#87CEFA">
       SBtab document
       <b>{{=g}}</b>
@@ -39,14 +37,13 @@ Currently, the definition file <b>{{=DEF_FILE_NAME[0]}}</b> is used for validati
 	      <form><td> <button type="submit" value="{{=pos}}" name="validate_button">Validate</button> </td> </form>
 	      <form><td> <button type="submit" value="{{=pos}}" name="erase_button">Remove</button> </td> </form>
 	    </tr>
-
-{{displayedf.append(f)}}
-{{displayedg.append(g)}}
-{{pass}}
-{{pass}}
-{{pass}}
-{{pass}}
-</table>
+	    {{displayedf.append(f)}}
+	    {{displayedg.append(g)}}
+	    {{pass}}
+	    {{pass}}
+	    {{pass}}
+	    {{pass}}
+  </table>
 </table>
 {{else:}}
 <table border="0">
@@ -57,23 +54,26 @@ No SBtab files uploaded.
 {{pass}}
 
 
-{{if V_OUTPUT:}}
+{{if WARNINGS and SBTAB_VAL:}}
 <br>
 <b>File validation of
-{{=SBTAB2VAL}}:</b>
+{{=SBTAB_VAL}}:</b>
 
 <table border="0">
-{{for f in V_OUTPUT:}} 
+{{for f in WARNINGS:}} 
   <tr> 
     <td><font color="#FF0000">&bull; {{=f}}</font></td> 
   </tr>
 {{pass}}
 </table>
-{{elif EXWARNING:}}
+{{elif WARNINGS:}}
 <table border="0">
 <tr>
 <td>
-<td>{{=EXWARNING[0]}}</td>
+<td style="color:red">{{=WARNINGS[0]}}</td>
+{{if DEF_FILE_NAME:}}
+The definition file <b>{{=DEF_FILE_NAME}}</b> was used for validation.
+{{pass}}
 </td>
 </tr>
 </table>
@@ -86,7 +86,7 @@ No warnings detected.
 
 {{pass}}
 
-<!--{{=V_OUTPUT}}-->
+
     <hr>
     <p>
       <a href="http://www.sbtab.net/index.html">Main</a> | 
