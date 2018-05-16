@@ -450,20 +450,23 @@ def def_files():
     response.title = T('SBtab - Standardised data tables for Systems Biology')
     response.subtitle = T('Upload your own definition files')
 
-    dform   = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload new definition file (.csv, .tsv, .tab)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
-    #new_def = False
+    dform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload new definition file (.csv, .tsv, .tab)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
+    session.new_def = False
     
     if not session.definition_file:
         def_file_open = open('./definitions/definitions.tsv','r')    
-        session.definition_file      = [def_file_open.read()]
-        session.definition_file_name = ['definitions.tsv']
+        session.definition_file = def_file_open.read()
+        session.definition_file_name = 'definitions.tsv'
 
     #update session lists
     if dform.process().accepted:
         response.flash = 'form accepted'
-        session.definition_file      = [request.vars.File.value]
-        session.definition_file_name = [request.vars.File.filename]
-        session.new_def              = True
+        sbtab_def_file = request.vars.File.value.decode('utf-8')
+        filename = request.vars.File.filename
+        sbtab_def = SBtab.SBtabTable(sbtab_def_file, filename)
+        session.definition_file = sbtab_def
+        session.definition_file_name = filename
+        session.new_def = True
     elif dform.errors:
         response.flash = 'form has errors'
 
@@ -474,7 +477,8 @@ def def_files():
         session.new_def = False
         redirect(URL(''))
 
-    return dict(UPL_FORM=dform,DEF_FILE=session.definition_file,DEF_NAME=session.definition_file_name,NEW=session.new_def)
+    return dict(UPL_FORM=dform, DEF_FILE=session.definition_file,
+                DEF_NAME=session.definition_file_name, NEW=session.new_def)
 
 def troubles():
     '''
@@ -565,11 +569,14 @@ def show_sbtab_def():
     '''
     displays a given SBtab definition file in html
     '''
-    try: def_file      = session.definition_file[int(request.args(0))]
+    try: sbtab_def = session.definition_file
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly. Please reload session (Troubleshooting page).'
 
-    def_file_name = session.definition_file_name[int(request.args(0))]
-    sbtype        = 'Definition'
+    try: return misc.tsv_to_html(sbtab_def.return_table_string(), sbtab_def.filename)
+    except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
+    '''
+    #def_file_name = session.definition_file_name[int(request.args(0))]
+    #sbtype = 'Definition'
 
     try:
         FileValidClass = validatorSBtab.ValidateFile(def_file,def_file_name)
@@ -582,7 +589,7 @@ def show_sbtab_def():
     else:
         try: return show_sbtab_xls(def_file,def_file_name)
         except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-
+    '''
 def show_sbtab():
     '''
     displays a given SBtab file in html
@@ -590,10 +597,8 @@ def show_sbtab():
     try: sbtab = session.sbtabs[int(request.args(0))]
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
-    try:
-        return misc.tsv_to_html(sbtab.return_table_string(), sbtab.filename)
-    except:
-        return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
+    try: return misc.tsv_to_html(sbtab.return_table_string(), sbtab.filename)
+    except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
     '''
     file_name  = session.sbtab_filenames[int(request.args(0))]

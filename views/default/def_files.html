@@ -1,8 +1,9 @@
 {{extend 'layout2.html'}}
+
 {{=UPL_FORM}}
+
 {{if DEF_NAME:}}
 <table>
-{{for pos,f in enumerate(DEF_NAME):}}
   <tr>
     {{if not NEW:}}
     <td style="width:650;">The features of SBtab tables, such as column names, are defined by a definition table.
@@ -12,7 +13,7 @@
       in the new table. Currently the default definition SBtab is loaded for your session:</td>
     </tr>
     <tr>
-    <td> <a href="/sbtab/default/show_sbtab_def/{{=str(pos)}}" target="_new"> {{=f}} </a> </td>
+    <td> <a href="/sbtab_web/default/show_sbtab_def/{{=str(0)}}" target="_new"> {{=DEF_NAME}} </a> </td>
     {{pass}}
     {{if NEW:}}
     <td style="width:650;">You are now using a customized definition table. Please note
@@ -23,15 +24,13 @@
       </td>
     </tr>
     <tr>
-    <td> <a href="/sbtab/default/show_sbtab_def/{{=str(pos)}}" target="_new"> {{=f}} </a> </td>
+    <td> <a href="/sbtab_web/default/show_sbtab_def/{{=str(0)}}" target="_new"> {{=DEF_NAME}} </a> </td>
     </tr>
     <tr>
-    <td> <form> <button type="submit" value="{{=pos}}" name="erase_def_button">Remove</button> </form> </td>
+    <td> <form> <button type="submit" value="{{0}}" name="erase_def_button">Remove</button> </form> </td>
     {{pass}}
   </tr>
-{{pass}}
 </table>
-{{else:}}
 {{pass}}
     <hr>
     <p>
