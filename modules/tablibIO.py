@@ -1,9 +1,6 @@
 #!/usr/bin/python
-
 import mimetypes
 import sys
-import tablib
-import tablib.core
 import csv
 import os
 import tablib
@@ -11,14 +8,13 @@ try: from . import misc
 except: import misc
 
 
-
-
 def sheets(self):  # Added to excess sheets of Databook
     return self._datasets
 try:
-    tablib.core.Databook.sheets
-except:
     tablib.core.Databook.sheets = sheets
+except:
+    tablib.Databook.sheets = sheets
+
 
 def importSetNew(sbtabfile,filename,separator=None):
     mimetypes.init()

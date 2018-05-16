@@ -624,3 +624,82 @@ class SBtabTable():
         column_names = map(lambda s: s[1:], self.columns)
         df = pd.DataFrame(data=self.get_rows(), columns=column_names)
         return df
+
+
+class SBtabDocument:
+    '''
+    The SBtab document class can consist of one or more SBtab Table objects
+    '''
+    def __init__(self, name, sbtab_init = None):
+        '''
+        simple initialisation of SBtabDocument with an optional SBtab Table object
+        '''
+        self.sbtabs = []
+        self.name_to_sbtab = {}
+        self.types = []
+        self.type_to_sbtab = {}
+        self.warnings = []
+
+        if sbtab_init:
+            self.add_sbtab(sbtab_init)
+        
+    def add_sbtab(self, sbtab):
+        '''
+        add an SBtab Table object to the SBtab Document
+        '''
+        if sbtab.filename not in self.name_to_sbtab and \
+           sbtab.table_type not in self.type_to_sbtab:
+            self.name_to_sbtab[sbtab.filename] = sbtab
+            self.sbtabs.append(sbtab)
+        else:
+            self.warnings.append('The SBtab %s could not be added since either the name or the table type is already present in this SBtab Document.')
+
+    def remove_sbtab_by_name(self, name):
+        '''
+        remove SBtab Table from SBtab Document
+        '''
+        for i, sbtab in enumerate(self.sbtabs):
+            if sbtab.filename == name:
+                del self.sbtabs[i]
+                del self.name_to_sbtab[sbtab.filename]
+                del self.types[i]
+                del self.type_to_sbtab[sbtab.table_type]
+                break
+
+    def remove_sbtab_by_type(self, ttype):
+        '''
+        remove SBtab Table from SBtab Document
+        '''
+        for i, sbtab in enumerate(self.sbtabs):
+            if sbtab.table_type == ttype:
+                del self.sbtabs[i]
+                del self.name_to_sbtab[sbtab.filename]
+                del self.types[i]
+                del self.type_to_sbtab[sbtab.table_type]
+                break
+
+    def return_warnings(self):
+        '''
+        return the list of possible warnings
+        '''
+        return self.warnings
+
+    def get_sbtab_by_name(self, name):
+        '''
+        return sbtab by given name
+        '''
+        try: return self.name_to_sbtab[name]
+        except: return None
+
+    def get_sbtab_by_type(self, ttype):
+        '''
+        return sbtab by given table type
+        '''
+        try: return self.type_to_sbtab[ttype]
+        except: return None
+
+    def set_name(self, name):
+        '''
+        set name of SBtab Document
+        '''
+        self.name = name

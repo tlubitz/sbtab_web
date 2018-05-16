@@ -7,7 +7,6 @@ Information on the SBtab validator can be found in the <a href="/sbtab_web/stati
 {{=UPL_FORM}}
 
 {{if NAME_LIST:}}
-BLAP
 {{displayedf = []}}
 {{displayedg = []}}
 
@@ -53,38 +52,67 @@ No SBtab files uploaded.
 </table>
 {{pass}}
 
-
 {{if WARNINGS and SBTAB_VAL:}}
+<br>
+<b>Warnings for
+{{=SBTAB_VAL}}:</b>
+
+<table border="0">
+{{for f in WARNINGS:}} 
+<tr> 
+  <td><font color="#FF0000">&bull; {{=f}}</font></td> 
+</tr>
+{{pass}}
+</table>
+{{elif WARNINGS:}}
+<table border="0">
+  <tr>
+    <td>
+    <td style="color:red">{{=WARNINGS[0]}}</td>
+    </td>
+  </tr>
+</table>
+{{else:}}
+<table border="0">
+  <td>
+    No warnings detected.
+  </td>
+</table>
+{{pass}}
+
+{{if OUTPUT and SBTAB_VAL:}}
 <br>
 <b>File validation of
 {{=SBTAB_VAL}}:</b>
 
 <table border="0">
-{{for f in WARNINGS:}} 
+{{for f in OUTPUT:}} 
   <tr> 
     <td><font color="#FF0000">&bull; {{=f}}</font></td> 
   </tr>
-{{pass}}
+  {{pass}}
 </table>
-{{elif WARNINGS:}}
+{{elif OUTPUT:}}
 <table border="0">
-<tr>
-<td>
-<td style="color:red">{{=WARNINGS[0]}}</td>
-{{if DEF_FILE_NAME:}}
-The definition file <b>{{=DEF_FILE_NAME}}</b> was used for validation.
-{{pass}}
-</td>
-</tr>
+  <tr>
+    <td>
+    <td style="color:red">{{=WARNINGS[0]}}</td>
+    {{if DEF_FILE_NAME:}}
+    The definition file <b>{{=DEF_FILE_NAME}}</b> is used for validation.
+    {{pass}}
+    </td>
+  </tr>
 </table>
 {{else:}}
 <table border="0">
-<td>
-No warnings detected.
-</td>
+  <td>
+    No validation errors detected.
+  </td>
 </table>
-
 {{pass}}
+
+
+
 
 
     <hr>

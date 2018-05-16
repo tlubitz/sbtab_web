@@ -61,21 +61,19 @@ def validator():
 
     lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload SBtab file (.csv, .tsv, .xls)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
     sbtab_val = None
+    output = []
     
     #update session lists
     if lform.process().accepted:
         response.flash = 'form accepted'
+
         # initialise session variables
         session.warnings_val = []
-
         if 'sbtabs' not in session:
             session.sbtabs = []
             session.sbtab_filenames = []
             session.sbtab_docnames = []
             session.name2doc = {}
-            # session.todeletename     = []
-            # session.sbtab_fileformat = []
-            # session.sbtab_types      = []
             
         # load the definition file which is required for validation
         if not session.definition_file:
@@ -84,13 +82,17 @@ def validator():
                 def_file = def_file_open.read()
                 definition_name = 'definitions.tsv'
                 sbtab_def = SBtab.SBtabTable(def_file, definition_name)
-                session.definition_file      = sbtab_def
+                session.definition_file = sbtab_def
                 session.definition_file_name = sbtab_def.filename
             except:
                 session.warnings_val.append('There was an error reading the definition file.')
 
         # validate file name
-        sbtab_file = request.vars.File.value.decode('utf-8')
+        try:
+            sbtab_file = request.vars.File.value.decode('utf-8')
+        except:
+            session.warnings_val.append('The file does not adhere to spreadsheet standards.')
+            redirect(URL(''))
         filename = request.vars.File.filename
         if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xls'):
             session.warnings_val.append('The file does not have a correct file format. Please use csv/tsv/xls only.')
@@ -104,20 +106,24 @@ def validator():
                 redirect(URL(''))
 
         # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
-        #try:
-        sbtab_amount = misc.count_tabs(sbtab_file)
+        try: sbtab_amount = misc.count_tabs(sbtab_file)
+        except:
+            session.warnings_val.append('The SBtab %s could not be read properly.' % sbtab.filename)
+            redirect(URL(''))
+
         if sbtab_amount > 1:
             try:
-                sbtab_doc = SBtab.SBtabDocument(sbtab_file, filename)
-                for sbtab in sbtab_doc.get_sbtabs():
-                    if sbtab.filename not in session.sbtab_names:
+                sbtab_strings = misc.split_sbtabs(sbtab_file)
+                sbtab_doc = SBtab.SBtabDocument(filename)
+                for i, sbtab_string in enumerate(sbtab_strings):
+                    name_single = filename[:-4] + str(i) + filename[-4:]
+                    if name_single not in session.sbtab_filenames:
+                        sbtab = SBtab.SBtabTable(sbtab_string, name_single)
+                        sbtab_doc.add_sbtab(sbtab)
                         session.sbtabs.append(sbtab)
-                        session.sbtab_filenames.append(sbtab.filename)
-                        session.sbtab_docnames.append(sbtab_doc.docname)
-                        session.name2doc[sbtab.filename] = sbtab_doc.docname
-                        # session.todeletename.append(sbtab.filename))
-                        # session.sbtab_fileformat.append(sbtab.filename[:-4])
-                        # session.sbtab_types.append(sbtab.table_type)
+                        session.sbtab_filenames.append(name_single)
+                        session.sbtab_docnames.append(filename)
+                        session.name2doc[name_single] = filename
                     else:
                         session.warnings_val.append('The SBtab %s is duplicate.' % sbtab.filename)
                         redirect(URL(''))
@@ -125,64 +131,61 @@ def validator():
                 session.warnings_val.append('The SBtab Document object could not be created properly.')
                 redirect(URL(''))
         else:
-            try: sbtab = SBtab.SBtabDocument(sbtab_file, filename)
+            try:
+                sbtab = SBtab.SBtabTable(sbtab_file, filename)
+                session.sbtabs.append(sbtab)
+                session.sbtab_filenames.append(sbtab.filename)
+                session.sbtab_docnames.append(sbtab.filename)
+                session.name2doc[sbtab.filename] = sbtab.filename
             except:
                 session.warnings_val.append('The SBtab Table object could not be created properly.')
                 redirect(URL(''))
-        #except:
-        #    session.warnings_val.append('The SBtab file could not be read properly.')
-        #    redirect(URL(''))
     elif lform.errors:
         response.flash = 'form has errors'
 
-    # button
+    # buttons
+    # validate
     if request.vars.validate_button:
-        sbtab_val = session.sbtabs[int(request.vars.validate_button)]
-        TableValidClass = validatorSBtab.ValidateTable(sbtab_data, session.definition_file)
-        warnings = TableValidClass.return_output()
+        sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
+        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
+        output = TableValidClass.return_output()
 
-        if warnings != []:
-            for w in warnings:
-                session.warnings_val.append(w)
-  
-
-    #pushed erase button
+    # erase
     if request.vars.erase_button:
+        flname = session.sbtab_filenames[int(request.vars.erase_button)]
         del session.sbtabs[int(request.vars.erase_button)]
         del session.sbtab_filenames[int(request.vars.erase_button)]
         del session.sbtab_docnames[int(request.vars.erase_button)]
-        del session.name2doc[session.sbtab_filenames[int(request.vars.erase_button)]]
-        # del session.name2doc[session.todeletename[int(request.vars.erase_button)]]
-        # del session.sbtab_fileformat[int(request.vars.erase_button)]
-        # del session.sbtab_types[int(request.vars.erase_button)]
-        # del session.todeletename[int(request.vars.erase_button)]
+        del session.name2doc[flname]
         session.warnings_val = []
         redirect(URL(''))
 
+    # erase all
     if request.vars.remove_all_button_val:
         try:
             remove_document = session.sbtab_docnames[int(request.vars.remove_all_button_val)]
             remove_sbtabs = []
-            for i,docname in enumerate(session.sbtab_docnames):
+            for i, docname in enumerate(session.sbtab_docnames):
                 if docname == remove_document:
                     remove_sbtabs.append(i)
                     
             remove = sorted(remove_sbtabs,reverse=True)                    
             for i in remove:
                 del session.sbtabs[i]
+                del session.name2doc[session.sbtab_filenames[i]]
                 del session.sbtab_filenames[i]
                 del session.sbtab_docnames[i]
-                # del session.sbtab_fileformat[i]
-                # del session.sbtab_types[i]
-                # del session.name2doc[session.todeletename[i]]
-                # del session.todeletename[i]
                 session.warnings_val = []
             redirect(URL(''))
         except:
             session.warnings_val.append('The document could not be removed. Please reload session.')
             redirect(URL(''))
 
-    return dict(UPL_FORM=lform,DEF_FILE_NAME=session.definition_file_name,SBTAB_LIST=session.sbtabs,NAME_LIST=session.sbtab_filenames,SBTAB_VAL=sbtab_val,DOC_NAMES=session.sbtab_docnames,NAME2DOC=session.name2doc,WARNINGS=session.warnings_val)
+    return dict(UPL_FORM=lform, DEF_FILE_NAME=session.definition_file_name,
+                SBTAB_LIST=session.sbtabs, NAME_LIST=session.sbtab_filenames,
+                SBTAB_VAL=sbtab_val, DOC_NAMES=session.sbtab_docnames,
+                NAME2DOC=session.name2doc, OUTPUT=output,
+                WARNINGS=session.warnings_val)
 
 def converter():
     response.title = T('SBtab - Standardised data tables for Systems Biology')
@@ -584,9 +587,15 @@ def show_sbtab():
     '''
     displays a given SBtab file in html
     '''
-    try: sbtab_file = session.sbtabs[int(request.args(0))]
-    except: return 'There is something wrong with this SBtab file. It cannot be loaded properly. Please reload session (Troubleshooting page).'
+    try: sbtab = session.sbtabs[int(request.args(0))]
+    except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
+    try:
+        return misc.tsv_to_html(sbtab.return_table_string(), sbtab.filename)
+    except:
+        return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
+
+    '''
     file_name  = session.sbtab_filenames[int(request.args(0))]
     sbtype     = session.sbtab_types[int(request.args(0))]
 
@@ -610,7 +619,7 @@ def show_sbtab():
     else:
         try: return show_sbtab_xls(def_file,def_file_name)
         except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-
+    '''
 
 def show_sbtab_xls(def_file,def_file_name):
     '''

@@ -55,17 +55,19 @@ class ValidateTable:
         self.filename = sbtab.filename
         # read definition table
         self.read_definition(def_table)
+
         # create set of valid table types
         self.allowed_table_types = list(set([row[2] for row in self.definitions[2:][0]]))
         # create dict of valid column names per table type
         self.allowed_columns = {}
         for table_type in self.allowed_table_types:
             self.allowed_columns[table_type] = [row[0] for row in self.definitions[2:][0] if row[2] == table_type]
+
         # check file format and header row
         self.check_general_format()
         self.column2format = {}
         defs = self.definitions[2]
-        
+
         for row in defs:
             if row[2] == self.sbtab.table_type:
                 self.column2format[row[0]] = row[3]
@@ -89,9 +91,9 @@ class ValidateTable:
         if def_table:
             try: self.definitions = def_table.sbtab_list
             except:
-                print('''Definition file could not be loaded, so the validation
-                could not be started. Please provide definition file
-                as argument''')
+                print('Definition file could not be loaded, so the validation'\
+                      'could not be started. Please provide definition file'\
+                      'as argument')
                 sys.exit() 
         else:
             try:
@@ -150,9 +152,9 @@ class ValidateTable:
         # check if length of value rows correspond to amount of columns
         for vr in self.sbtab.value_rows:
             if len(vr) != len(self.sbtab.columns):
-                self.warnings.append('''Warning: The length of row %s does not
-                correspond to the amount of columns,
-                which is %s.''' % (vr, len(self.sbtab.columns)))
+                self.warnings.append('Warning: The length of row %s does not'\
+                                     'correspond to the amount of columns,'\
+                                     'which is %s.''' % (vr, len(self.sbtab.columns)))
 
 
     def check_table_content(self):
