@@ -45,6 +45,7 @@ def clearsession():
 
     session.warnings_val = []
     session.warnings_con = []
+    session.warnings_def = []
     
     redirect('http://www.sbtab.net')
 
@@ -59,7 +60,10 @@ def validator():
     response.title    = T('SBtab - Standardised data tables for Systems Biology')
     response.subtitle = T('Online Validator')
 
-    lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload SBtab file (.csv, .tsv, .xls)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
+    lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
+                                  label='Upload SBtab file (.csv, .tsv, .xls)',
+                                  requires=IS_LENGTH(10485760, 1,
+                                                     error_message='Max upload size: 10MB')))
     sbtab_val = None
     output = []
     
@@ -115,6 +119,7 @@ def validator():
             try:
                 sbtab_strings = misc.split_sbtabs(sbtab_file)
                 sbtab_doc = SBtab.SBtabDocument(filename)
+                session.sbtab_docnames.append(filename)
                 for i, sbtab_string in enumerate(sbtab_strings):
                     name_single = filename[:-4] + str(i) + filename[-4:]
                     if name_single not in session.sbtab_filenames:
@@ -122,7 +127,6 @@ def validator():
                         sbtab_doc.add_sbtab(sbtab)
                         session.sbtabs.append(sbtab)
                         session.sbtab_filenames.append(name_single)
-                        session.sbtab_docnames.append(filename)
                         session.name2doc[name_single] = filename
                     else:
                         session.warnings_val.append('The SBtab %s is duplicate.' % sbtab.filename)
@@ -147,7 +151,8 @@ def validator():
     # validate
     if request.vars.validate_button:
         sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
-        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
+        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)],
+                                                       session.definition_file)
         output = TableValidClass.return_output()
 
     # erase
@@ -194,73 +199,124 @@ def converter():
     session.sbmlid2label = {'24':'_SBML_L2V4',
                             '31':'_SBML_L3V1'}
 
-    if not session.definition_file:
-        def_file_open = open('./definitions/definitions.tsv','r')    
-        session.definition_file      = [def_file_open.read()]
-        session.definition_file_name = ['definitions.tsv']
-
-    #Form for SBtab files
-    lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload SBtab file to convert (.csv, .tsv, .tab, .xls)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
-    #update session lists
+    import SBtab  # why??
+    # #########################################################################
+    # form for SBtab files
+    lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
+                                  label='Upload SBtab file to convert (.csv, .tsv, .xls)',
+                                  requires=IS_LENGTH(10485760, 1,
+                                                     error_message='Max upload size: 10MB')))
+    
     if lform.process(formname='form_one').accepted:
         response.flash = 'form accepted'
-        session.ex_warning_con = None
-        valid = True
-        FileValidClass = validatorSBtab.ValidateFile(request.vars.File.value,request.vars.File.filename)
-        while valid:
-            #1: Is the file extension valid?
-            if not FileValidClass.validateExtension():
-                session.ex_warning_con = ['The file format was not supported. Please use .csv, .tsv, .tab, or .xls.']
-                break
 
-            #2: Can the separator be determined?
-            if request.vars.File.filename[-3:] == 'xls':
-                try: csv_file  = misc.xls2csv(request.vars.File.value,request.vars.File.filename)
-                except:
-                    session.ex_warning_con = ['This xls file could not be imported. Please ensure the validity of the xls format.']
-                    break
-                sbtabber  = misc.removeDoubleQuotes(csv_file)
-                separator = ','
-            elif not FileValidClass.checkseparator():
-                session.ex_warning_con = ['The delimiter of the file could not be determined. Please use comma or tabs as consistent separators.']
-                break
-            else:
-                separator = FileValidClass.checkseparator()
-                sbtabber  = misc.removeDoubleQuotes(request.vars.File.value)
-                
-            #3: If there are more than one SBtab files in the uploaded documents, try to split them
-            try: (sbtab_list,types,docs,tnames) = splitTabs.checkTabs([sbtabber],request.vars.File.filename,separator=separator)
+        # initialise required variables and files XXX
+        session.warnings_con = []
+        if not session.definition_file:
+            try:
+                def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+                def_file = def_file_open.read()
+                definition_name = 'definitions.tsv'
+                sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+                session.definition_file = sbtab_def
+                session.definition_file_name = sbtab_def.filename
             except:
-                session.ex_warning_con = ['The SBtab document could not be split into single SBtab tables. Please try uploading them separately.']
-                break
+                session.warnings_con.append('There was an error reading the definition file.')
 
-            #4: Now save all the required files, names, and variables in the session
-            if not session.has_key('sbtabs'):
-                session.sbtabs           = []
-                session.name2doc         = {}
-                session.sbtab_filenames  = []
-                session.todeletename     = []
-                session.sbtab_fileformat = []
-                session.sbtab_docnames   = []
-                session.sbtab_types      = []
-            for i,sbtab in enumerate(sbtab_list):
-                fn = misc.create_filename(request.vars.File.filename,types[i],tnames[i])
-                if not fn in session.sbtab_filenames:
-                    session.sbtabs.append('\n'.join(sbtab))
-                    session.sbtab_filenames.append(fn)
-                    session.todeletename.append(fn)
-                    session.name2doc[fn] = docs[i]
-                    session.sbtab_fileformat.append(request.vars.File.filename[-4:])
-                    session.sbtab_docnames.append(docs[i])
-                    session.sbtab_types.append(types[i])
-                else:
-                    warning = 'A file with the name %s has already been uploaded. Please rename your file before upload.'%fn
-                    session.ex_warning_con = [warning]
-            break
+        if 'sbtabs' not in session:
+            session.sbtabs = []
+            session.sbtab_filenames = []
+            session.sbtab_docnames = []
+            session.name2doc = {}
+
+        # validate file name
+        try: sbtab_file = request.vars.File.value.decode('utf-8')
+        except:
+            session.warnings_con.append('The file does not adhere to spreadsheet standards.')
+            redirect(URL(''))
+        
+        filename = request.vars.File.filename
+        if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xls'):
+            session.warnings_con.append('The file does not have a correct file format. Please use csv/tsv/xls only.')
+            redirect(URL(''))
+
+        # convert from xls to csv if required
+        if filename.endswith('.xls'):
+            try: sbtab_file = misc.xls2csv(sbtab_file, filename)
+            except:
+                session.warnings_con.append('The xls file could not be converted to SBtab. Please ensure file format validity.')
+                redirect(URL(''))
+
+        # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
+        try: sbtab_amount = misc.count_tabs(sbtab_file)
+        except:
+            session.warnings_con.append('The SBtab %s could not be read properly.' % sbtab.filename)
+            redirect(URL(''))
+
+        if sbtab_amount > 1:
+            try:
+                sbtab_strings = misc.split_sbtabs(sbtab_file)
+                sbtab_doc = SBtab.SBtabDocument(filename)
+                session.sbtab_docnames.append(filename)
+                for i, sbtab_string in enumerate(sbtab_strings):
+                    name_single = filename[:-4] + str(i) + filename[-4:]
+                    if name_single not in session.sbtab_filenames:
+                        sbtab = SBtab.SBtabTable(sbtab_string, name_single)
+                        sbtab_doc.add_sbtab(sbtab)
+                        session.sbtabs.append(sbtab)
+                        session.sbtab_filenames.append(name_single)
+                        session.name2doc[name_single] = filename
+                    else:
+                        session.warnings_con.append('The SBtab %s is duplicate.' % sbtab.filename)
+                        redirect(URL(''))
+            except:
+                session.warnings_con.append('The SBtab Document object could not be created properly.')
+                redirect(URL(''))
+        else:
+            try:
+                sbtab = SBtab.SBtabTable(sbtab_file, filename)
+                session.sbtabs.append(sbtab)
+                session.sbtab_filenames.append(sbtab.filename)
+                session.sbtab_docnames.append(sbtab.filename)
+                session.name2doc[sbtab.filename] = sbtab.filename
+            except:
+                session.warnings_con.append('The SBtab Table object could not be created properly.')
+                redirect(URL(''))
     elif lform.errors:
         response.flash = 'form has errors'
 
-    # convert sbtab2sbml button is pushed
+    # #########################################################################
+    # form for SBML files
+    
+    rform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload SBML file to convert (.xml)',requires=IS_LENGTH(52428800, 1, error_message='Max upload size: 50MB')))
+
+    if rform.process(formname='form_two').accepted:
+        response.flash = 'form accepted'
+        session.warnings_con = []
+
+        filename = request.vars.File.filename
+        sbml_file = request.vars.File.value
+        if filename[-3:] != 'xml' and filename[-4:] != 'sbml':
+            session.warnings_con.append('The uploaded file has a wrong extension for an SBML file.')
+            redirect(URL(''))
+        
+        if 'sbmls' not in session:
+            session.sbmls = [sbml_file]
+            session.sbml_filenames = [filename]
+        else:
+            if filename not in session.sbml_filenames:
+                session.sbmls.append(sbml_file)
+                session.sbml_filenames.append(filename)
+            else:
+                session.warnings_con.append('An SBML file with the name %s is already stored.' % filename)
+                redirect(URL(''))
+        redirect(URL(''))
+    elif rform.errors:
+        response.flash = 'form has errors'
+
+    # #########################################################################
+    # buttons
+    # convert sbtab2sbml
     if request.vars.c2sbml_button24 or request.vars.c2sbml_button31:
         if request.vars.c2sbml_button24 != None:
             sbml = '24'
@@ -289,12 +345,15 @@ def converter():
             break
         redirect(URL(''))
 
+    # download sbtab
     if request.vars.dl_sbtab_button:
         downloader_sbtab()
 
+    # download sbtab.xls
     if request.vars.dl_xls_sbtab_button:
         downloader_sbtab_xls()
 
+    # download all sbtabs
     if request.vars.download_all_button:
         download_document = session.sbtab_docnames[int(request.vars.download_all_button)]
         sbtab_list        = []
@@ -303,6 +362,7 @@ def converter():
                 sbtab_list.append(session.sbtabs[i])
         downloader_sbtab_doc(sbtab_list,int(request.vars.download_all_button))
 
+    # convert to sbml
     if request.vars.convert_all_button24 or request.vars.convert_all_button31:
         if request.vars.convert_all_button24 != None:
             sbml = '24'
@@ -336,6 +396,7 @@ def converter():
             break
         redirect(URL(''))
 
+    # remove all sbtabs
     if request.vars.remove_all_button:
         try:
             remove_document = session.sbtab_docnames[int(request.vars.remove_all_button)]
@@ -347,44 +408,18 @@ def converter():
             for i in remove:
                 del session.sbtabs[i]
                 del session.sbtab_filenames[i]
-                del session.sbtab_fileformat[i]
                 del session.sbtab_docnames[i]
-                del session.sbtab_types[i]
-                del session.name2doc[session.todeletename[i]]
-                del session.todeletename[i]
+                del session.name2doc[session.sbtab_filenames[i]]
                 session.ex_warning_con = None
             redirect(URL(''))
         except:
             redirect(URL(''))
             pass
 
-    #Form for SBML files
-    rform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload SBML file to convert (.xml)',requires=IS_LENGTH(52428800, 1, error_message='Max upload size: 50MB')))
 
-    if rform.process(formname='form_two').accepted:
-        response.flash         = 'form accepted'
-        session.ex_warning_con = None
-        valid = True
-        while valid:
-            if request.vars.File.filename[-3:] != 'xml' and request.vars.File.filename[-4:] != 'sbml':
-                session.ex_warning_con = ['The uploaded file has a different extension than .xml or .sbml and does not seem to be an SBML file.']
-                break
-            if not session.has_key('sbmls'):
-                session.sbmls = [request.vars.File.value]
-                session.sbml_filenames = [request.vars.File.filename]
-            else:
-                session.sbmls.append(request.vars.File.value)
-                fn = request.vars.File.filename
-                if not fn in session.sbml_filenames:
-                    session.sbml_filenames.append(fn)
-                else:
-                    random_number = str(random.randint(0,1000))
-                    session.sbml_filenames.append(fn+'_'+random_number)
-            break
-        redirect(URL(''))
-    elif rform.errors:
-        response.flash = 'form has errors'
 
+
+        
     if request.vars.erase_sbml_button:
         del session.sbmls[int(request.vars.erase_sbml_button)]
         del session.sbml_filenames[int(request.vars.erase_sbml_button)]
@@ -441,7 +476,11 @@ def converter():
     if request.vars.dl_sbml_button:
         downloader_sbml()
         
-    return dict(UPL_FORML=lform,UPL_FORMR=rform,SBTAB_LIST=session.sbtabs,SBML_LIST=session.sbmls,NAME_LIST_SBTAB=session.sbtab_filenames,NAME_LIST_SBML=session.sbml_filenames,DOC_NAMES=session.sbtab_docnames,NAME2DOC=session.name2doc,EXWARNING=session.ex_warning_con,TYPES=session.sbtab_types)
+    return dict(UPL_FORML=lform, UPL_FORMR=rform, SBTAB_LIST=session.sbtabs,
+                SBML_LIST=session.sbmls, NAME_LIST_SBTAB=session.sbtab_filenames,
+                NAME_LIST_SBML=session.sbml_filenames,
+                DOC_NAMES=session.sbtab_docnames, NAME2DOC=session.name2doc,
+                WARNINGS_CON=session.warnings_con, TYPES=session.sbtab_types)
 
 def def_files():
     '''
@@ -450,20 +489,36 @@ def def_files():
     response.title = T('SBtab - Standardised data tables for Systems Biology')
     response.subtitle = T('Upload your own definition files')
 
-    dform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp", label='Upload new definition file (.csv, .tsv, .tab)',requires=IS_LENGTH(10485760, 1, error_message='Max upload size: 10MB')))
+    dform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
+                                  label='Upload new definition file (.csv, .tsv, .xls)',
+                                  requires=IS_LENGTH(10485760, 1,
+                                                     error_message='Max upload size: 10MB')))
     session.new_def = False
-    
-    if not session.definition_file:
-        def_file_open = open('./definitions/definitions.tsv','r')    
-        session.definition_file = def_file_open.read()
-        session.definition_file_name = 'definitions.tsv'
 
     #update session lists
     if dform.process().accepted:
         response.flash = 'form accepted'
-        sbtab_def_file = request.vars.File.value.decode('utf-8')
+        session.warnings_def = []
+        if not session.definition_file:
+            try:
+                def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+                def_file = def_file_open.read()
+                definition_name = 'definitions.tsv'
+                sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+                session.definition_file = sbtab_def
+                session.definition_file_name = sbtab_def.filename
+            except:
+                session.warnings_val.append('There was an error reading the definition file.')
+        
+        try: sbtab_def_file = request.vars.File.value.decode('utf-8')
+        except:
+            session.warnings_def.append('The file is not a valid SBtab file.')
+            redirect(URL(''))
         filename = request.vars.File.filename
-        sbtab_def = SBtab.SBtabTable(sbtab_def_file, filename)
+        try: sbtab_def = SBtab.SBtabTable(sbtab_def_file, filename)
+        except:
+            session.warnings_def.append('The file could not be used as a valid SBtab Table.')
+            redirect(URL(''))
         session.definition_file = sbtab_def
         session.definition_file_name = filename
         session.new_def = True

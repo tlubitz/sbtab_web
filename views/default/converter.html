@@ -9,7 +9,6 @@ Information on file formats (.csv, .xls) can be found <a href="http://www.sbtab.
 
 {{=UPL_FORML}}
 
-
 {{if NAME_LIST_SBTAB:}}
 
 {{displayedf = []}}
@@ -18,32 +17,31 @@ Information on file formats (.csv, .xls) can be found <a href="http://www.sbtab.
 <table border="0">
   {{for pos2,g in enumerate(DOC_NAMES):}}
   {{for pos,f in enumerate(NAME_LIST_SBTAB):}}
-  {{if NAME2DOC[f] == g:}}
-  {{pass}}
-  {{pass}}
-
+  {{if NAME2DOC[f] == g:}}  <!-- if a specific sbtab name belongs to the sbtab document in question -->
     {{if not g in displayedg:}}
     <table border="1" rules="rows">
       <td bgcolor="#87CEFA">
-      
         SBtab document
         <b>{{=g}}</b>
       </td>
       
       {{if DOC_NAMES.count(g)>1:}}
-      {{if "Reaction" in TYPES or "Compound" in TYPES:}}
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="convert_all_button24" valign="top">Convert to SBML 2.4</button> </td> </form>
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="convert_all_button31" valign="top">Convert to SBML 3.1</button> </td> </form>
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="remove_all_button">Remove all</button> </td> </form>
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="download_all_button">Download all</button> </td> </form>
-      <td bgcolor="#87CEFA"></td>
-      {{else:}}
-      <td bgcolor="#87CEFA"></td>
-      <td bgcolor="#87CEFA"></td>
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="remove_all_button">Remove all</button> </td> </form>
-      <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="download_all_button">Download all</button> </td> </form>
-      <td bgcolor="#87CEFA"></td>
-      {{pass}}
+
+          {{if "Reaction" in TYPES or "Compound" in TYPES:}}
+          <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="convert_all_button24" valign="top">Convert to SBML 2.4</button> </td> </form>
+	  <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="convert_all_button31" valign="top">Convert to SBML 3.1</button> </td> </form>
+	  <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="remove_all_button">Remove all</button> </td> </form>
+	  <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="download_all_button">Download all</button> </td> </form>
+          <td bgcolor="#87CEFA"></td>
+
+	  {{else:}}
+          <td bgcolor="#87CEFA"></td>
+          <td bgcolor="#87CEFA"></td>
+          <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="remove_all_button">Remove all</button> </td> </form>
+	  <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="download_all_button">Download all</button> </td> </form>
+          <td bgcolor="#87CEFA"></td>
+          {{pass}}
+      
       {{else:}}
       </td>
       <td bgcolor="#87CEFA"></td>
@@ -109,15 +107,14 @@ No SBtab files uploaded.
 <tr>No SBML files uploaded</tr>
 {{pass}}
 
-
-{{if EXWARNING:}}
+{{if WARNINGS_CON:}}
 <br><br>
 <b>Logfile of warnings for conversion:</b>
 <br>
 
 <table border="0">
-{{if len(EXWARNING)>1:}}
-{{for f in EXWARNING:}} 
+{{if len(WARNINGS_CON)>1:}}
+{{for f in WARNINGS_CON:}} 
   <tr> 
     <td><font color="#FF0000">&bull; {{=f}}</font></td> 
   </tr>
@@ -125,7 +122,7 @@ No SBtab files uploaded.
 </table>
 {{else:}}
 <tr>
-    <td><font color="#FF0000">&bull; {{=EXWARNING[0]}}</font></td>
+    <td><font color="#FF0000">&bull; {{=WARNINGS_CON[0]}}</font></td>
 </tr>
 </table>
 {{pass}}
