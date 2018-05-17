@@ -421,31 +421,37 @@ def converter():
                 del session.sbtabs[i]
                 del session.sbtab_filenames[i]
                 del session.types[i]
-            session.warnings_con = None
+            session.warnings_con = []
             del session.sbtab_docnames[int(request.vars.remove_all_button)]
             redirect(URL(''))
-        except:
-            redirect(URL(''))
-            pass
-        
+        except: redirect(URL(''))
+
+    # erase single SBML
     if request.vars.erase_sbml_button:
         del session.sbmls[int(request.vars.erase_sbml_button)]
         del session.sbml_filenames[int(request.vars.erase_sbml_button)]
-        session.ex_warning_con = None
+        session.warnings_con = []
         redirect(URL(''))
 
-    # convert sbml2sbtab button is pushed
+    # convert sbml to sbtab
     if request.vars.c2sbtab_button:
-        session.ex_warning_con = None
+        session.warnings_con = []
         try:
-            reader     = libsbml.SBMLReader()
+            # initialise variables and parser
+            reader = libsbml.SBMLReader()
             sbml_model = reader.readSBMLFromString(session.sbmls[int(request.vars.c2sbtab_button)])
-            filename   = session.sbml_filenames[int(request.vars.c2sbtab_button)]
-            if not filename.endswith('.xml') and not filename.endswith('.sbml'): filename += '.xml'
-            ConvSBMLClass                   = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
-            (tab_output,session.ex_warning_con) = ConvSBMLClass.makeSBtabs()
+            filename = session.sbml_filenames[int(request.vars.c2sbtab_button)]
+
+            # convert SBML to SBtab Document
+            ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
+            
+            (sbtab_doc, session.ex_warning_con) = ConvSBMLClass.convert_to_sbtab()
+
+
+            
             # append generated SBtabs to session variables
-            for SBtab in tab_output:
+            for sbtab in sbtab_doc.sbtabs:
+                
                 if SBtab == False: continue
                 if not session.has_key('sbtabs'):
                     session.sbtabs = [SBtab[0]]
