@@ -30,7 +30,7 @@ def clearsession():
     session.sbtabs = []
     session.sbtab_filenames = []
     session.sbtab_docnames = []
-    session.sbtab_types = []
+    session.types = []
     session.name2doc = {}
     session.todeletename = []
     session.sbtab_fileformat = []    
@@ -77,6 +77,7 @@ def validator():
             session.sbtabs = []
             session.sbtab_filenames = []
             session.sbtab_docnames = []
+            session.types = []
             session.name2doc = {}
             
         # load the definition file which is required for validation
@@ -126,6 +127,7 @@ def validator():
                         sbtab = SBtab.SBtabTable(sbtab_string, name_single)
                         sbtab_doc.add_sbtab(sbtab)
                         session.sbtabs.append(sbtab)
+                        session.types.append(sbtab.table_type)
                         session.sbtab_filenames.append(name_single)
                         session.name2doc[name_single] = filename
                     else:
@@ -139,6 +141,7 @@ def validator():
                 sbtab = SBtab.SBtabTable(sbtab_file, filename)
                 session.sbtabs.append(sbtab)
                 session.sbtab_filenames.append(sbtab.filename)
+                session.types.append(sbtab.table_type)
                 session.sbtab_docnames.append(sbtab.filename)
                 session.name2doc[sbtab.filename] = sbtab.filename
             except:
@@ -160,6 +163,7 @@ def validator():
         flname = session.sbtab_filenames[int(request.vars.erase_button)]
         del session.sbtabs[int(request.vars.erase_button)]
         del session.sbtab_filenames[int(request.vars.erase_button)]
+        del session.types[int(request.vars.erase_button)]
         del session.sbtab_docnames[int(request.vars.erase_button)]
         del session.name2doc[flname]
         session.warnings_val = []
@@ -179,6 +183,7 @@ def validator():
                 del session.sbtabs[i]
                 del session.name2doc[session.sbtab_filenames[i]]
                 del session.sbtab_filenames[i]
+                del session.types[i]
                 del session.sbtab_docnames[i]
                 session.warnings_val = []
             redirect(URL(''))
@@ -212,6 +217,7 @@ def converter():
 
         # initialise required variables and files XXX
         session.warnings_con = []
+
         if not session.definition_file:
             try:
                 def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
@@ -222,12 +228,14 @@ def converter():
                 session.definition_file_name = sbtab_def.filename
             except:
                 session.warnings_con.append('There was an error reading the definition file.')
-
+                redirect(URL(''))
+                
         if 'sbtabs' not in session:
             session.sbtabs = []
             session.sbtab_filenames = []
             session.sbtab_docnames = []
             session.name2doc = {}
+            session.types = []
 
         # validate file name
         try: sbtab_file = request.vars.File.value.decode('utf-8')
@@ -265,6 +273,7 @@ def converter():
                         sbtab_doc.add_sbtab(sbtab)
                         session.sbtabs.append(sbtab)
                         session.sbtab_filenames.append(name_single)
+                        session.types.append(sbtab.table_type)
                         session.name2doc[name_single] = filename
                     else:
                         session.warnings_con.append('The SBtab %s is duplicate.' % sbtab.filename)
@@ -277,11 +286,13 @@ def converter():
                 sbtab = SBtab.SBtabTable(sbtab_file, filename)
                 session.sbtabs.append(sbtab)
                 session.sbtab_filenames.append(sbtab.filename)
+                session.types.append(sbtab.table_type)
                 session.sbtab_docnames.append(sbtab.filename)
                 session.name2doc[sbtab.filename] = sbtab.filename
             except:
                 session.warnings_con.append('The SBtab Table object could not be created properly.')
                 redirect(URL(''))
+        redirect(URL(''))
     elif lform.errors:
         response.flash = 'form has errors'
 
@@ -295,7 +306,7 @@ def converter():
         session.warnings_con = []
 
         filename = request.vars.File.filename
-        sbml_file = request.vars.File.value
+        sbml_file = request.vars.File.value.decode('utf-8')
         if filename[-3:] != 'xml' and filename[-4:] != 'sbml':
             session.warnings_con.append('The uploaded file has a wrong extension for an SBML file.')
             redirect(URL(''))
@@ -392,7 +403,7 @@ def converter():
                     session.sbml_filenames.append(fn+session.sbmlid2label[sbml])
                 else:
                     warning = 'A file with the name %s has already been uploaded. Please rename your SBtab file/s before SBML creation.'%fn
-                    session.ex_warning_con = [warning]
+                    session.warnings_con = [warning]
             break
         redirect(URL(''))
 
@@ -400,25 +411,22 @@ def converter():
     if request.vars.remove_all_button:
         try:
             remove_document = session.sbtab_docnames[int(request.vars.remove_all_button)]
-            remove_sbtabs   = []
-            for i,docname in enumerate(session.sbtab_docnames):
-                if docname == remove_document:
+            remove_sbtabs = []
+            for i, sbtab in enumerate(session.sbtab_filenames):
+                if session.name2doc[sbtab] == remove_document:
                     remove_sbtabs.append(i)
-            remove = sorted(remove_sbtabs,reverse=True)                    
+            remove = sorted(remove_sbtabs, reverse=True)
             for i in remove:
+                del session.name2doc[session.sbtab_filenames[i]]
                 del session.sbtabs[i]
                 del session.sbtab_filenames[i]
-                del session.sbtab_docnames[i]
-                del session.name2doc[session.sbtab_filenames[i]]
-                session.ex_warning_con = None
+                del session.types[i]
+            session.warnings_con = None
+            del session.sbtab_docnames[int(request.vars.remove_all_button)]
             redirect(URL(''))
         except:
             redirect(URL(''))
             pass
-
-
-
-
         
     if request.vars.erase_sbml_button:
         del session.sbmls[int(request.vars.erase_sbml_button)]
@@ -462,15 +470,13 @@ def converter():
         except:
             session.ex_warning_con = ['The SBML file seems to be invalid and could not be converted to SBtab. Please validate it on the SBML validator homepage.']
 
+    # erase single SBtab
     if request.vars.erase_sbtab_button:
         del session.sbtabs[int(request.vars.erase_sbtab_button)]
+        del session.name2doc[session.sbtab_filenames[int(request.vars.erase_sbtab_button)]]
         del session.sbtab_filenames[int(request.vars.erase_sbtab_button)]
-        del session.sbtab_fileformat[int(request.vars.erase_sbtab_button)]
-        del session.sbtab_docnames[int(request.vars.erase_sbtab_button)]
-        del session.sbtab_types[int(request.vars.erase_sbtab_button)]
-        del session.name2doc[session.todeletename[int(request.vars.erase_sbtab_button)]]
-        del session.todeletename[int(request.vars.erase_sbtab_button)]
-        session.ex_warning_con = None
+        del session.types[int(request.vars.erase_sbtab_button)]
+        session.warnings_con = []
         redirect(URL(''))
 
     if request.vars.dl_sbml_button:
@@ -480,7 +486,7 @@ def converter():
                 SBML_LIST=session.sbmls, NAME_LIST_SBTAB=session.sbtab_filenames,
                 NAME_LIST_SBML=session.sbml_filenames,
                 DOC_NAMES=session.sbtab_docnames, NAME2DOC=session.name2doc,
-                WARNINGS_CON=session.warnings_con, TYPES=session.sbtab_types)
+                WARNINGS_CON=session.warnings_con, TYPES=session.types)
 
 def def_files():
     '''
@@ -543,19 +549,10 @@ def troubles():
 
 def downloader_sbtab():
         response.headers['Content-Type'] = 'text/csv'
-        if not session.sbtab_filenames[int(request.vars.dl_sbtab_button)].endswith('.csv') and not session.sbtab_filenames[int(request.vars.dl_sbtab_button)].endswith('.tsv') and not session.sbtab_filenames[int(request.vars.dl_sbtab_button)].endswith('.xls') and not session.sbtab_filenames[int(request.vars.dl_sbtab_button)].endswith('.tab'):
-            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_sbtab_button)]+'.tsv'
-        else: attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_sbtab_button)]
+        attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_sbtab_button)]
         response.headers['Content-Disposition'] = attachment
-
-        #here we remove the extra tabs/comma from the first row for export
-        content_raw = session.sbtabs[int(request.vars.dl_sbtab_button)]
-        try:
-            #FileValidClass = validatorSBtab.ValidateFile(content_raw,session.sbtab_filenames[int(request.vars.dl_sbtab_button)])
-            delimiter = misc.getDelimiter(content_raw) #FileValidClass.checkseparator(content_raw)
-        except:
-            delimiter = '\t'
-        content = misc.first_row(content_raw,delimiter)
+        sbtab = session.sbtabs[int(request.vars.dl_sbtab_button)]
+        content = sbtab.return_table_string()
 
         raise HTTP(200,str(content),
                    **{'Content-Type':'text/csv',
@@ -563,27 +560,22 @@ def downloader_sbtab():
 
 def downloader_sbtab_xls():
         response.headers['Content-Type'] = 'application/vnd.ms-excel'#'xls'
+        sbtab = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
         if not session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)].endswith('.xls'):
             attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]+'.xls'
-            content_raw = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
             try:
-                FileValidClass = validatorSBtab.ValidateFile(content_raw,session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)])
-                delimiter      = FileValidClass.checkseparator(content_raw)
+                content_xls = misc.csv2xls(sbtab)
             except:
-                delimiter = None
-            try:
-                content_csv = misc.first_row(content_raw,delimiter)
-                content_xls = misc.csv2xls(content_csv,delimiter)
-            except:
-                attachment  = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]+'.xls'
-                content_xls = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
+                print('The SBtab could not be converted to XLS.')
+                redirect(URL(''))
         else:
-            attachment  = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]
+            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]
             content_xls = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
+
         #response.headers['Content-Disposition'] = attachment
 
-        raise HTTP(200,content_xls,
-                   **{'Content-Type':'application/vnd.ms-excel',#'text/xls',
+        raise HTTP(200, content_xls,
+                   **{'Content-Type':'text/xls',
                       'Content-Disposition':attachment + ';'})
 
 def downloader_sbtab_doc(sbtab_list,iter):
@@ -605,7 +597,7 @@ def downloader_sbtab_doc(sbtab_list,iter):
             content += misc.first_row(sbtab,delimiter)+'\n'
 
         raise HTTP(200,str(content),
-                   **{'Content-Type':'text/csv',
+                   **{'Content-Type':'application/vnd.ms-excel',
                       'Content-Disposition':attachment + ';'})
 
 def downloader_sbml():

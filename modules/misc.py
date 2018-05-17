@@ -461,3 +461,37 @@ def tsv_to_html_improved(sbtab, filename=None):
     </html>
     '''
     return sbtab_html
+
+
+def csv2xls(sbtab):
+    '''
+    Converts SBtab file to xls file.
+    Parameters
+    ----------
+    sbtab_file : SBtab
+       SBtab object
+    '''
+    import xlwt
+
+    # open workbook
+    book  = xlwt.Workbook()
+    sheet = book.add_sheet('Sheet 1')
+
+    # write header and columns
+    first_row = sheet.row(0)
+    first_row.write(0,sbtab.header_row)
+
+    second_row = sheet.row(1)
+    for i, element in enumerate(sbtab.columns):
+        second_row.write(i, element)
+
+    # write the rows of the SBtab
+    for i, row in enumerate(sbtab.value_rows):
+        new_row = sheet.row(i+2)
+        for j, element in enumerate(row):
+            new_row.write(j,element)
+
+    book.save('simple.xls')
+    fileobject = open('simple.xls','r')
+
+    return fileobject

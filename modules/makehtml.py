@@ -131,12 +131,10 @@ def xml2html(sbml_file):
     '''
     old_sbml = sbml_file.split('\n')
     new_sbml = '<xmp>'
-
     for row in old_sbml:
         new_sbml += row + '\n'
-
     new_sbml += '</xmp>'
-        
+
     return new_sbml
 
 def findDescriptions(def_file,def_delimiter,sbtype):
