@@ -645,9 +645,20 @@ class SBtabDocument:
            sbtab.table_type not in self.type_to_sbtab:
             self.name_to_sbtab[sbtab.filename] = sbtab
             self.sbtabs.append(sbtab)
+            self.check_type_validity()
+            self.types.append(sbtab.table_type)
+            self.type_to_sbtab[sbtab.table_type] = sbtab
         else:
             self.warnings.append('The SBtab %s could not be added since either the name or the table type is already present in this SBtab Document.')
 
+    def check_type_validity(self, ttype):
+        '''
+        only certain table types are valid; this function checks if the
+        given one is
+        '''
+        pass
+
+            
     def remove_sbtab_by_name(self, name):
         '''
         remove SBtab Table from SBtab Document

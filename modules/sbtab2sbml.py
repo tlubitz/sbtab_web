@@ -32,174 +32,59 @@ class SBtabDocument:
     '''
     SBtab document to be converted to SBML model
     '''
-    def __init__(self, sbtab, filename, tabs=1):
+    def __init__(self, sbtab_doc):
         '''
         Initalizes SBtab document, checks it for SBtab count.
         If there are more than 1 SBtab file to be converted, provide a "tabs" parameter higher than 1.
 
         Parameters
         ----------
-        sbtab : str
-           SBtab file as string representation.
-        filename : str
-           SBtab file name.
-        tabs : int
-           Amount of SBtab tables in the provided file.
+        sbtab : SBtab Document object
+           SBtab Document Class.
         '''
-        self.filename  = filename
+        self.sbtab_doc = sbtab_doc
+        self.filename = sbtab_doc.name
+        self.warnings = []
 
-        if self.filename.endswith('tsv') or self.filename.endswith('csv') or self.filename.endswith('.xls'): pass
-        else: raise ConversionError('The given file format is not supported: %s' % self.filename)
-
-        self.document = [sbtab]
-        self.tabs = tabs            
-        self.unit_mM = False
-        self.unit_mpdw = False
-        self.checkTabs()              #check how many SBtabs are given in the document
-
-    def checkTabs(self):
-        '''
-        Checks, how many SBtab files are given by the user and saves them
-        in a list, moreover stores the SBtab types in a dict linking to the SBtabs.
-        '''
-        self.type2sbtab = {}
-
-        #if there are more than one SBtabs given in single files that might be comprised of several SBtabs:
-        if self.tabs > 1:
-            for single_document in self.document[0]:
-                #check for several SBtabs in one document
-                document_rows = single_document.split('\n')
-                tabs_in_document = self.getAmountOfTables(document_rows)
-                if tabs_in_document > 1:
-                    sbtabs = self.splitDocumentInTables(document_rows)
-                else: sbtabs = [document_rows]
-                #generate SBtab class instance for every SBtab
-                for sbtab in sbtabs:
-                    sbtabtsv = self.unifySBtab(sbtab)
-                    if sbtabtsv == False: continue
-                    new_tablib_obj = tablibIO.importSetNew(sbtabtsv,self.filename,separator='\t')
-                    single_tab = SBtab.SBtabTable(new_tablib_obj,self.filename)
-                    if single_tab.table_type in self.type2sbtab.keys():
-                        fn = random_number = str(random.randint(0,1000))
-                        self.type2sbtab[single_tab.table_type+'_'+fn] = single_tab
-                    else: self.type2sbtab[single_tab.table_type] = single_tab
-        #elif there is only one document given, possibly consisting of several SBtabs
-        else:
-            #check for several SBtabs in one document
-            document_rows = self.document[0].split('\n')
-            tabs_in_document = self.getAmountOfTables(document_rows)
-            if tabs_in_document > 1: sbtabs = self.splitDocumentInTables(document_rows)
-            else: sbtabs = [document_rows]
-
-            #generate SBtab class instance for every SBtab
-            for sbtab in sbtabs:
-                as_sbtab = '\n'.join(sbtab)
-                single_tab = SBtab.SBtabTable(as_sbtab, self.filename)
-                self.type2sbtab[single_tab.table_type] = single_tab
-
-    def unifySBtab(self,sbtab):
-        '''
-        If we have a list of heterogeneous SBtab files, we have to unify them to one common delimiter; we choose \t arbitrarily.
-
-        Parameters
-        ----------
-        sbtab : str
-           SBtab file as string representation.
-        '''
-        new_tab = []
-
-        for row in sbtab:
-            if row.startswith('!!'): continue
-            if row.startswith('!'):
-                columns = row
-                if '\t' in columns:
-                    delimiter = '\t'
-                    new_tab.append(sbtab[0])
-                    new_tab.append(sbtab[1])
-                    continue
-                elif ';' in columns:
-                    delimiter = ';'
-                    new_tab.append(sbtab[0].replace(delimiter,'\t'))
-                    new_tab.append(sbtab[1].replace(delimiter,'\t'))
-                    continue
-                elif ',' in columns:
-                    delimiter = ','
-                    new_tab.append(sbtab[0].replace(delimiter,'\t'))
-                    new_tab.append(sbtab[1].replace(delimiter,'\t'))
-                    continue
-                else:
-                    print('The delimiter of one of the SBtabs could not be identified. Please check.')
-            else:
-                try: new_tab.append(row.replace(delimiter,'\t'))
-                except: return False
-            
-        new_tab = '\n'.join(new_tab)
-
-        return new_tab
-            
-    def getAmountOfTables(self,document_rows):
-        '''
-        Counts the SBtab tables that are present in the document.
-
-        Parameters
-        ----------
-        document_rows : str
-           Whole SBtab document as a string representation.
-        '''
-        counter = 0
-        for row in document_rows:
-            if row.startswith('!!'):
-                counter += 1
-        return counter
-
-    def splitDocumentInTables(self,document_rows):
-        '''
-        If the document contains more than one SBtab, this function splits the document into the single SBtabs.
-
-        Parameters
-        ----------
-        document_rows : str
-           Whole SBtab document as a string representation.
-        '''
-        single_sbtab = [document_rows[0]]
-        sbtab_list   = []
-        for row in document_rows[1:]:
-            if row.split('\t')[0] == '':
-                continue
-            if not row.startswith('!!'):
-                    single_sbtab.append(row)
-            else:
-                sbtab_list.append(single_sbtab)
-                single_sbtab = [row]
-        sbtab_list.append(single_sbtab)
-        return sbtab_list
-
-    def makeSBML(self):
+    def convert_to_sbml(self, sbml_version):
         '''
         Generates the SBML file using the provided SBtab file/s.
         '''
         # initialize new model
-        self.warnings     = []
         self.new_document = libsbml.SBMLDocument()
-        self.new_model    = self.new_document.createModel()
+        self.new_model = self.new_document.createModel()
         self.new_model.setId('default_id')
         self.new_model.setName('default_name')
-        self.new_document.setLevelAndVersion(2,4)
-        self.reaction_list    = []
-        self.species_list     = []
-        self.compartment_list = []
-        self.modifier_list    = []
-        self.id2sbmlid        = {}
-        strikes               = 1
-        valid                 = True
-        newSBML               = False
+        if sbml_version == '24':
+            self.new_document.setLevelAndVersion(2,4)
+        elif sbml_version == '31':
+            self.new_document.setLevelAndVersion(3,1)
+        else:
+            self.warnings.append('The given SBML version %s could not be gene'\
+                                 'rated.' % sbml_version)
+            return (False, self.warnings)
 
+        # initialize some required variables for conversion
+        #self.reaction_list = []
+        #self.species_list = []
+        #self.compartment_list = []
+        #self.modifier_list = []
+        #self.id2sbmlid = {}
+        #strikes = 1
+        #valid = True
+        #newSBML = False
+
+        # 1. build compartment
+        try: self.build_compartments()
+        except:
+            self.warnings.append('Error: The compartment initialisation crash'\
+                                 'ed. Please check for valid compartment info'\
+                                 'rmation.')
+            return (False, self.warnings)
+
+        
         while valid:
-            #0st order: create compartments
-            try: self.checkForCompartments()
-            except:
-                self.warnings.append('Error: The compartment initialisation crashed. Please check for valid compartment information.')
-                break
+
 
             #1st order of bizness: due to the right modeling order of SBML, we first check for a compound SBtab
             if 'Compound' in self.type2sbtab.keys():
@@ -234,27 +119,33 @@ class SBtabDocument:
         if strikes < 3: return newSBML,self.warnings
         else: return False,['There was no or not sufficient model information available to build an SBML model.']
 
-    def getWarningOnly(self):
+    def return_warnings(self):
         '''
-        Returns warnings from the SBML conversion.
+        return warnings from the SBML conversion.
         '''
         return self.warnings
     
-    def checkForCompartments(self):
+    def build_compartments(self):
         '''
-        If there is no Compartment SBtab AND no compartments given in the other provided SBtab files, a default
-        compartment needs to be set.
+        compartment build up is neccessary and tricky:
+        either we have a compartment SBtab, or if not, we have to check a
+        possible reaction and/or compound SBtab for compartments; if all of
+        these do not work, we need one crucial default compartment
         '''
-        self.def_comp_set = False      #has a default compartment been set?
-        
         #1. check for compartment SBtab
-        try:
-            self.compartmentSBtab()
-            return True
-        except:
-            pass
+        if 'Compartment' in self.sbtab_doc.types:
+            try:
+                self.compartment_sbtab()
+            except:
+                self.warnings.append('There was a compartment SBtab but it '\
+                                     'could not be used for SBML compartment '\
+                                     'initialisation.')
 
         #2. if there was no compartment SBtab given, check whether it is given in the other SBtabs
+        if 'Compound' in self.sbtab_doc.types:
+            sbtab_compound = self.sbtab_doc.type_to_sbtab['Compound']
+            # XXX
+            
         try:
             sbtab = self.type2sbtab['Reaction']
             sbtab.columns_dict['!Location']
@@ -312,7 +203,7 @@ class SBtabDocument:
 
         return cv_term
 
-    def compartmentSBtab(self):
+    def compartment_sbtab(self):
         '''
         Extracts the information from the Compartment SBtab and writes it to the model.
         '''

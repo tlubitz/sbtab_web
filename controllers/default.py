@@ -331,10 +331,10 @@ def converter():
     if request.vars.c2sbml_button24 or request.vars.c2sbml_button31:
         # determine requested SBML version
         if request.vars.c2sbml_button24 != None:
-            sbml = '24'
+            sbml_version = '24'
             c2sbml_button = request.vars.c2sbml_button24
         else:
-            sbml = '31'
+            sbml_version = '31'
             c2sbml_button = request.vars.c2sbml_button31
             
         session.warnings_con = []
@@ -350,7 +350,7 @@ def converter():
         # convert SBtab document to SBML and add details to session
         try:
             ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
-            (sbml, session.warnings_con) = ConvSBtabClass.convert_to_sbml()
+            (sbml, session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
             filename_new = sbtab.filename[:-4] + '.xml'
             if 'sbmls' not in session:
                 session.sbmls = [sbml]
