@@ -327,34 +327,46 @@ def converter():
 
     # #########################################################################
     # buttons
-    # convert sbtab2sbml
+    # convert (single) sbtab to sbml
     if request.vars.c2sbml_button24 or request.vars.c2sbml_button31:
+        # determine requested SBML version
         if request.vars.c2sbml_button24 != None:
             sbml = '24'
             c2sbml_button = request.vars.c2sbml_button24
         else:
             sbml = '31'
             c2sbml_button = request.vars.c2sbml_button31
-        session.ex_warning_con = None
-        valid = True
-        fn = session.sbtab_filenames[int(c2sbml_button)]+session.sbtab_fileformat[int(c2sbml_button)]
-        sbtab_document = sbtab2sbml.SBtabDocument(session.sbtabs[int(c2sbml_button)],fn,sbml=sbml)
-        while valid:
-            (new_sbml,session.ex_warning_con) = sbtab_document.makeSBML()
-            if not new_sbml: break
-            if not session.has_key('sbmls'):
-                session.sbmls = [new_sbml]
-                session.sbml_filenames = [session.sbtab_filenames[int(c2sbml_button)]+session.sbmlid2label[sbml]]
+            
+        session.warnings_con = []
+
+        # get SBtab and add to SBtab document
+        try:
+            sbtab = session.sbtabs[int(c2sbml_button)]
+            sbtab_doc = SBtab.SBtabDocument(sbtab.filename, sbtab)
+        except:
+            session.warnings_con = ['The SBtab %s could not be added to the document.' % sbtab.filename]
+            redirect(URL(''))
+
+        # convert SBtab document to SBML and add details to session
+        try:
+            ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
+            (sbml, session.warnings_con) = ConvSBtabClass.convert_to_sbml()
+            filename_new = sbtab.filename[:-4] + '.xml'
+            if 'sbmls' not in session:
+                session.sbmls = [sbml]
+                session.sbml_filenames = [filename_new]
             else:
-                fn = session.sbtab_filenames[int(c2sbml_button)]
-                if not fn in session.sbml_filenames:
-                    session.sbmls.append(new_sbml)
-                    session.sbml_filenames.append(fn+session.sbmlid2label[sbml])
+                if not filename_new in session.sbml_filenames:
+                    session.sbmls.append(sbml)
+                    session.sbml_filenames.append(filename_new)
                 else:
-                    warning = 'A file with the name %s has already been uploaded. Please rename your SBtab file/s before SBML creation.'%fn
-                    session.ex_warning_con = [warning]
-            break
-        redirect(URL(''))
+                    session.warnings_con = ['A file with the name %s has already been uploaded. Please rename your SBtab file/s before SBML creation.' % filename_new]
+                    redirect(URL(''))
+            redirect(URL(''))
+        except:
+            session.warnings_con = ['The conversion of SBtab %s to SBML was not successful.' % sbtab.filename]
+            redirect(URL(''))
+
 
     # download sbtab
     if request.vars.dl_sbtab_button:
@@ -444,37 +456,27 @@ def converter():
 
             # convert SBML to SBtab Document
             ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
-            
-            (sbtab_doc, session.ex_warning_con) = ConvSBMLClass.convert_to_sbtab()
-
-
+            (sbtab_doc, session.warnings_con) = ConvSBMLClass.convert_to_sbtab()
             
             # append generated SBtabs to session variables
             for sbtab in sbtab_doc.sbtabs:
-                
-                if SBtab == False: continue
-                if not session.has_key('sbtabs'):
-                    session.sbtabs = [SBtab[0]]
-                    session.sbtab_filenames = [session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')+'_'+SBtab[1]]
-                    session.sbtab_fileformat = ['.tsv']
-                    session.sbtab_docnames = [session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')]
-                    session.sbtab_types    = [string.capitalize(SBtab[1])]
-                    session.todeletename   = [session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')+'_'+SBtab[1]]
+                if 'sbtabs' not in session:
+                    session.sbtabs = [sbtab]
+                    session.sbtab_filenames = [sbtab.filename]
+                    session.sbtab_docnames = [sbtab_doc.name]
+                    session.types = [sbtab.table_type]
                     session.name2doc = {}
-                    session.name2doc[session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')+'_'+SBtab[1]] = session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')
+                    session.name2doc[sbtab.filename] = sbtab_doc.name
                 else:
-                    fn = session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')+'_'+SBtab[1]
-                    if not fn in session.sbtab_filenames:
-                        session.sbtabs.append(SBtab[0])
-                        session.sbtab_filenames.append(fn)
-                        session.todeletename.append(fn)
-                        session.name2doc[fn] = session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml')      #needs +'_'+SBtab[1]??
-                        session.sbtab_fileformat.append('.tsv')
-                        session.sbtab_docnames.append(session.sbml_filenames[int(request.vars.c2sbtab_button)].rstrip('.xml'))
-                        session.sbtab_types.append(string.capitalize(SBtab[1]))
-            #redirect(URL(''))
+                    if sbtab.filename not in session.sbtab_filenames:
+                        session.sbtabs.append(sbtab)
+                        session.sbtab_filenames.append(sbtab.filename)
+                        session.name2doc[sbtab.filename] = sbtab_doc.name
+                        session.sbtab_docnames.append(sbtab_doc.name)
+                        session.types.append(sbtab.table_type)
         except:
-            session.ex_warning_con = ['The SBML file seems to be invalid and could not be converted to SBtab. Please validate it on the SBML validator homepage.']
+            session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
+            redirect(URL(''))
 
     # erase single SBtab
     if request.vars.erase_sbtab_button:

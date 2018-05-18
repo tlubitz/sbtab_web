@@ -326,7 +326,7 @@ class SBtabTable():
         new : str
             New entry.
         '''
-        col = self.columns_dict['!' + column]
+        col = self.columns_dict[column_name]
         for r in self.value_rows:
             if r[0] == name:
                 r[col] = new
@@ -413,25 +413,22 @@ class SBtabTable():
         sbtab_dataset = self.table
 
         # If new row is too small, add empty entries to new row
-        if len(row_list) < len(sbtab_dataset.dict[0]):
-            for i in range(len(sbtab_dataset.dict[0]) - len(row_list)):
+        if len(row_list) < len(self.columns):
+            for i in range(len(self.columns) - len(row_list)):
                 row_list.append('')
-
         # If new row is too long, add empty entries to sbtab_dataset
-        elif len(row_list) > len(sbtab_dataset.dict[0]):
-            for i in range(len(sbtab_dataset.dict[0])):
+        elif len(row_list) > len(self.columns):
+            for i in range(len(self.columns)):
                 empty_list.append('')
-            for i in range(len(row_list) - len(sbtab_dataset.dict[0])):
-                sbtab_dataset.rpush_col(empty_list)
 
         # If no position is set, add new row to the end
         if position is None:
-            sbtab_dataset.rpush(row_list)
+            self.value_rows.append(row_list)
         else:
-            sbtab_dataset.insert(position, row_list)
+            self.value_rows.insert(position, row_list)
 
         # Update object
-        self.table = sbtab_dataset
+        #self.table = sbtab_dataset
         self.initialize_table()
 
     def remove_row(self, position):
@@ -463,35 +460,31 @@ class SBtabTable():
         position : int
             Position of new column in the table, 0 is right.
         '''
-        # Empty column to fill up sbtab_dataset with ''
-        empty_list = []
-        
         # If new column is too small, add empty entries to new column
-        if len(column_list) < (len(self.sbtab_dataset.dict) - 1):
-            for i in range((len(self.sbtab_dataset.dict) - 1) -
-                           len(column_list)):
+        if len(column_list) < (len(self.value_rows) + 1):
+            for i in range((len(self.value_rows) + 1) - len(column_list)):
                 column_list.append('')
-
         # If new column is too long, add empty entries to sbtab_dataset
-        elif len(column_list) > (len(self.sbtab_dataset.dict) - 1):
-            for i in range(len(self.sbtab_dataset.dict[0])):
-                empty_list.append('')
+        elif len(column_list) > (len(self.value_rows) + 1):
+            empty_row = [''] * len(self.columns)
             for i in range(len(column_list) -
-                           (len(self.sbtab_dataset.dict) - 1)):
-                self.value_rows.append(empty_list)
-                empty_list = copy.deepcopy(empty_list)
+                           (len(self.value_rows) + 1)):
+                self.value_rows.append(empty_row)
 
         # If no position is set, add new column to the end
         if not position:
             for i, row in enumerate(self.value_rows):
                 row.append(column_list[i + 1])
             self.columns_dict[column_list[0]] = len(self.columns)
-            self.columns = self.columns_dict.keys()
+            self.columns.append(column_list[0])
+            #self.columns = self.columns_dict.keys()
         else:
             for i, row in enumerate(self.value_rows):
                 row.insert(position - 1, column_list[i + 1])
             self.columns_dict[column_list[0]] = position - 1
-            self.columns = self.columns_dict.keys()
+            self.columns.insert(position - 1, column_list[0])
+            
+            #self.columns = self.columns_dict.keys()
 
         # Update object
         self.update()
@@ -635,6 +628,7 @@ class SBtabDocument:
         simple initialisation of SBtabDocument with an optional SBtab Table object
         '''
         self.sbtabs = []
+        self.name = name
         self.name_to_sbtab = {}
         self.types = []
         self.type_to_sbtab = {}
