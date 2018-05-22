@@ -83,7 +83,8 @@ class SBtabTable():
         '''
         table_list = []
         for row in table_string.split('\n'):
-            table_list.append(row.split(self.delimiter))
+            if row.replace(self.delimiter, '') != '':
+                table_list.append(row.split(self.delimiter))
         return table_list
 
     def return_table_string(self):
@@ -657,7 +658,10 @@ class SBtabDocument:
         only certain table types are valid; this function checks if the
         given one is
         '''
-        supported_types = []
+        supported_types = ['Compound', 'Enzyme', 'Protein', 'Gene', 'Regulator',
+                           'Compartment', 'Reaction', 'ReactionStoichiometry',
+                           'Relation', 'Quantity', 'QuantityMatrix',
+                           'Defintion', 'PbConfig']
         if ttype in supported_types:
             return True
         else:

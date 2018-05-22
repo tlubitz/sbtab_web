@@ -350,8 +350,16 @@ def converter():
         # convert SBtab document to SBML and add details to session
         try:
             ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
-            (sbml, session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
+            (sbml,
+             session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
             filename_new = sbtab.filename[:-4] + '.xml'
+            # if the sbml build up crashed:
+            if not sbml:
+                session.warnings_con.append('The SBtab file %s could not be c'\
+                                            'onverted to SBML. Please check file'\
+                                            'validity.' % sbtab.filename)
+                redirect(URL(''))
+           
             if 'sbmls' not in session:
                 session.sbmls = [sbml]
                 session.sbml_filenames = [filename_new]
@@ -360,13 +368,71 @@ def converter():
                     session.sbmls.append(sbml)
                     session.sbml_filenames.append(filename_new)
                 else:
-                    session.warnings_con = ['A file with the name %s has already been uploaded. Please rename your SBtab file/s before SBML creation.' % filename_new]
+                    session.warnings_con.append('A file with the name %s has alre'\
+                                                'ady been uploaded. Please rename'\
+                                                ' your SBtab file/s before SBML c'\
+                                                'reation.' % filename_new)
                     redirect(URL(''))
-            redirect(URL(''))
         except:
-            session.warnings_con = ['The conversion of SBtab %s to SBML was not successful.' % sbtab.filename]
+            session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
+                                        'ot successful.' % sbtab.filename)
             redirect(URL(''))
 
+    # convert multiple sbtabs to sbml
+    if request.vars.convert_all_button24 or request.vars.convert_all_button31:
+        if request.vars.convert_all_button24 != None:
+            sbml_version = '24'
+            convert_all_button = request.vars.convert_all_button24
+        else:
+            sbml_version = '31'
+            convert_all_button = request.vars.convert_all_button31
+
+        session.warnings_con = []
+
+        # get SBtabs and add them to an SBtab document
+        convert_document = session.sbtab_docnames[int(convert_all_button)]
+        sbtabs = []
+        try:
+            for i, filename in enumerate(session.sbtab_filenames):
+                if session.name2doc[filename] == convert_document:
+                    sbtabs.append(session.sbtabs[i])
+            sbtab_doc = SBtab.SBtabDocument(convert_document)
+            for sbtab in sbtabs:
+                sbtab_doc.add_sbtab(sbtab)
+        except:
+            session.warnings_con = ['The SBtabs could not be added to SBML.']
+            redirect(URL(''))
+                
+        # convert SBtab document to SBML and add details to session
+        try:
+            ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
+            (sbml,
+             session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
+            filename_new = sbtab_doc.name[:-4] + '.xml'
+            # if the sbml build up crashed:
+            if not sbml:
+                session.warnings_con.append('The SBtab file %s could not be c'\
+                                            'onverted to SBML. Please check file'\
+                                            'validity.' % sbtab_doc.name)
+                redirect(URL(''))
+                
+            if 'sbmls' not in session:
+                session.sbmls = [sbml]
+                session.sbml_filenames = [filename_new]
+            else:
+                if not filename_new in session.sbml_filenames:
+                    session.sbmls.append(sbml)
+                    session.sbml_filenames.append(filename_new)
+                else:
+                    session.warnings_con.append('A file with the name %s has alre'\
+                                                'ady been uploaded. Please rename'\
+                                                ' your SBtab file/s before SBML c'\
+                                                'reation.' % filename_new)
+                    redirect(URL(''))
+        except:
+            session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
+                                        'ot successful.' % sbtab_doc.filename)
+            redirect(URL(''))
 
     # download sbtab
     if request.vars.dl_sbtab_button:
@@ -379,45 +445,11 @@ def converter():
     # download all sbtabs
     if request.vars.download_all_button:
         download_document = session.sbtab_docnames[int(request.vars.download_all_button)]
-        sbtab_list        = []
-        for i,docname in enumerate(session.sbtab_docnames):
-            if docname == download_document:
+        sbtab_list = []
+        for i, filename in enumerate(session.sbtab_filenames):
+            if session.name2doc[filename] == download_document:
                 sbtab_list.append(session.sbtabs[i])
-        downloader_sbtab_doc(sbtab_list,int(request.vars.download_all_button))
-
-    # convert to sbml
-    if request.vars.convert_all_button24 or request.vars.convert_all_button31:
-        if request.vars.convert_all_button24 != None:
-            sbml = '24'
-            convert_all_button = request.vars.convert_all_button24
-        else:
-            sbml = '31'
-            convert_all_button = request.vars.convert_all_button31
-        session.ex_warning_con = None
-        valid = True
-        convert_document = session.sbtab_docnames[int(convert_all_button)]
-        merged_sbtabs    = []
-        for i,docname in enumerate(session.sbtab_docnames):
-            if docname == convert_document:
-                merged_sbtabs.append(session.sbtabs[i])
-        sbtab_document = sbtab2sbml.SBtabDocument(merged_sbtabs,'merged_unknown.tsv',sbml=sbml,tabs=2)
-        while valid:
-            (new_sbml,session.ex_warning_con) = sbtab_document.makeSBML()
-            if not new_sbml: break
-            if convert_document == None: convert_document = 'Unnamed_document'
-            if not session.has_key('sbmls'):
-                session.sbmls = [new_sbml]
-                session.sbml_filenames = [convert_document+session.sbmlid2label[sbml]]
-            else:
-                fn = convert_document
-                if not fn in session.sbml_filenames:
-                    session.sbmls.append(new_sbml)
-                    session.sbml_filenames.append(fn+session.sbmlid2label[sbml])
-                else:
-                    warning = 'A file with the name %s has already been uploaded. Please rename your SBtab file/s before SBML creation.'%fn
-                    session.warnings_con = [warning]
-            break
-        redirect(URL(''))
+        downloader_sbtab_doc(sbtab_list, int(request.vars.download_all_button))
 
     # remove all sbtabs
     if request.vars.remove_all_button:
@@ -586,40 +618,42 @@ def downloader_sbtab_xls():
                    **{'Content-Type':'text/xls',
                       'Content-Disposition':attachment + ';'})
 
-def downloader_sbtab_doc(sbtab_list,iter):
-        response.headers['Content-Type'] = 'text/csv'
-        if not session.sbtab_docnames[iter].endswith('.csv') and not session.sbtab_docnames[iter].endswith('.tsv')  and not session.sbtab_docnames[iter].endswith('.tab'):
-            attachment = 'attachment;filename=' + session.sbtab_docnames[iter]+'.tsv'
-        else: attachment = 'attachment;filename=' + session.sbtab_docnames[iter]
-        response.headers['Content-Disposition'] = attachment
-        
-        #here we remove the extra tabs/comma from the first row for export
-        #content_raw = sbtab_list
-        content = ''
-        for sbtab in sbtab_list:
-            try:
-                FileValidClass = validatorSBtab.ValidateFile(sbtab,session.sbtab_docnames[iter])
-                delimiter      = FileValidClass.checkseparator(sbtab)
-            except:
-                delimiter = None
-            content += misc.first_row(sbtab,delimiter)+'\n'
+def downloader_sbtab_doc(sbtab_list, i):
 
-        raise HTTP(200,str(content),
-                   **{'Content-Type':'application/vnd.ms-excel',
-                      'Content-Disposition':attachment + ';'})
+    response.headers['Content-Type'] = 'text/csv'
+    if not session.sbtab_docnames[i].endswith('tsv') and \
+       not session.sbtab_docnames[i].endswith('csv') and \
+       not session.sbtab_docnames[i].endswith('xls'):
+        attachment = 'attachment;filename=' + session.sbtab_docnames[i] + '.tsv'
+    else:
+        attachment = 'attachment;filename=' + session.sbtab_docnames[i]
+    response.headers['Content-Disposition'] = attachment
+        
+    content = ''
+    for sbtab in sbtab_list:
+        try:
+            content += sbtab.return_table_string() + '\n\n'
+        except:
+            print('Could not read SBtab %s' % sbtab.filename)
+
+    raise HTTP(200, str(content),
+               **{'Content-Type':'application/vnd.ms-excel',
+                  'Content-Disposition':attachment + ';'})
+
 
 def downloader_sbml():
-        response.headers['Content-Type'] = 'text/xml'
-        if not session.sbml_filenames[int(request.vars.dl_sbml_button)].endswith('.xml') and not session.sbml_filenames[int(request.vars.dl_sbml_button)].endswith('.sbml'):
-            attachment = 'attachment;filename=' + session.sbml_filenames[int(request.vars.dl_sbml_button)]+'.xml'
-        else: attachment = 'attachment;filename=' + session.sbml_filenames[int(request.vars.dl_sbml_button)]
-        response.headers['Content-Disposition'] = attachment
+    response.headers['Content-Type'] = 'text/xml'
+    if not session.sbml_filenames[int(request.vars.dl_sbml_button)].endswith('.xml') and not session.sbml_filenames[int(request.vars.dl_sbml_button)].endswith('.sbml'):
+        attachment = 'attachment;filename=' + session.sbml_filenames[int(request.vars.dl_sbml_button)]+'.xml'
+    else: attachment = 'attachment;filename=' + session.sbml_filenames[int(request.vars.dl_sbml_button)]
+    response.headers['Content-Disposition'] = attachment
         
-        content = session.sbmls[int(request.vars.dl_sbml_button)]
-        raise HTTP(200,str(content),
-                   **{'Content-Type':'text/xml',
-                      'Content-Disposition':attachment + ';'})
+    content = session.sbmls[int(request.vars.dl_sbml_button)]
+    raise HTTP(200,str(content),
+            **{'Content-Type':'text/xml',
+               'Content-Disposition':attachment + ';'})
 
+    
 def show_sbtab_def():
     '''
     displays a given SBtab definition file in html
@@ -629,22 +663,8 @@ def show_sbtab_def():
 
     try: return misc.tsv_to_html(sbtab_def.return_table_string(), sbtab_def.filename)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
-    '''
-    #def_file_name = session.definition_file_name[int(request.args(0))]
-    #sbtype = 'Definition'
 
-    try:
-        FileValidClass = validatorSBtab.ValidateFile(def_file,def_file_name)
-        delimiter      = FileValidClass.checkseparator()
-    except: delimiter = None
 
-    if delimiter:
-        try: return makehtml.csv2html(def_file,def_file_name,delimiter,sbtype,def_file,def_file_name)
-        except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-    else:
-        try: return show_sbtab_xls(def_file,def_file_name)
-        except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-    '''
 def show_sbtab():
     '''
     displays a given SBtab file in html
@@ -655,31 +675,6 @@ def show_sbtab():
     try: return misc.tsv_to_html(sbtab.return_table_string(), sbtab.filename)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
-    '''
-    file_name  = session.sbtab_filenames[int(request.args(0))]
-    sbtype     = session.sbtab_types[int(request.args(0))]
-
-    try:
-        FileValidClass = validatorSBtab.ValidateFile(sbtab_file,file_name)
-        delimiter      = FileValidClass.checkseparator()
-    except:
-        delimiter = None
-        
-    try:
-        def_file      = session.definition_file[0]
-        def_file_name = session.definition_file_name[0]
-    except:
-        def_file_open = open('./definitions/definitions.tsv','r')    
-        def_file      = def_file_open.read()
-        def_file_name = 'definitions.tsv'
-
-    if delimiter:
-        try: return makehtml.csv2html(sbtab_file,file_name,delimiter,sbtype,def_file,def_file_name)
-        except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-    else:
-        try: return show_sbtab_xls(def_file,def_file_name)
-        except: return 'There is something wrong with this SBtab file. It cannot be displayed.'
-    '''
 
 def show_sbtab_xls(def_file,def_file_name):
     '''
