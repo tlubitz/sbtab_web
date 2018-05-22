@@ -26,7 +26,7 @@ Information on file formats (.csv, .xls) can be found <a href="http://www.sbtab.
 			    <b>{{=g}}</b>
 			  </td>
       
-                        {{if DOC_NAMES.count(g)>1:}}
+                        {{if list(NAME2DOC.values()).count(g) > 1:}}
 			    {{if "Reaction" in TYPES or "Compound" in TYPES:}}
 			        <form>
 				  <td bgcolor="#87CEFA">
@@ -118,8 +118,8 @@ Information on file formats (.csv, .xls) can be found <a href="http://www.sbtab.
 	    {{pass}}
 	{{pass}}
 			</table>
-			<br>
-    </table>
+
+
     {{else:}}
     <table border="0">
       <td>
@@ -128,6 +128,7 @@ Information on file formats (.csv, .xls) can be found <a href="http://www.sbtab.
     </table>
     <hr>
     {{pass}}
+    </table>
 {{pass}}
 
 

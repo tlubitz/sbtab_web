@@ -177,8 +177,7 @@ def validator():
             for i, docname in enumerate(session.sbtab_docnames):
                 if docname == remove_document:
                     remove_sbtabs.append(i)
-                    
-            remove = sorted(remove_sbtabs,reverse=True)                    
+            remove = sorted(remove_sbtabs,reverse=True)
             for i in remove:
                 del session.sbtabs[i]
                 del session.name2doc[session.sbtab_filenames[i]]
@@ -186,7 +185,6 @@ def validator():
                 del session.types[i]
                 del session.sbtab_docnames[i]
                 session.warnings_val = []
-            redirect(URL(''))
         except:
             session.warnings_val.append('The document could not be removed. Please reload session.')
             redirect(URL(''))

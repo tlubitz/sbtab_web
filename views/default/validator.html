@@ -11,14 +11,14 @@ Information on the SBtab validator can be found in the <a href="/sbtab_web/stati
 {{displayedg = []}}
 
 <table border="0">
-  {{for pos2,g in enumerate(DOC_NAMES):}}
+  {{for pos2, g in enumerate(DOC_NAMES):}}
   {{if not g in displayedg:}}
   <table border="1" rules="rows">
     <td bgcolor="#87CEFA">
       SBtab document
       <b>{{=g}}</b>
     </td>
-    {{if len(DOC_NAMES)>1:}}
+    {{if list(NAME2DOC.values()).count(g) > 1:}}
     <form><td bgcolor="#87CEFA"><button type="submit" value="{{=pos2}}" name="remove_all_button_val">Remove all</button> </td> </form>
     <td bgcolor="#87CEFA"></td>
     {{else:}}
