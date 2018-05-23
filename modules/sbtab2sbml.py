@@ -350,6 +350,17 @@ class SBtabDocument:
             if not species.isSetCompartment():
                 species.setCompartment(self.compartment_list[0])
 
+    def is_number(self, s):
+        '''
+        test if a given string is a number masked as string; this is mainly
+        important while setting SBML IDs (which must NOT be numbers)
+        '''
+        try:
+            float(s)
+            return True
+        except:
+            return False
+                
     def reaction_sbtab(self):
         '''
         extract information from the Reaction SBtab and write it to the model
@@ -417,22 +428,23 @@ class SBtabDocument:
 
             # set id and name
             if '!SBML:reaction:id' in sbtab_reaction.columns and \
-               row[sbtab_reaction.columns_dict['!SBML:reaction:id']] != '':
+               row[sbtab_reaction.columns_dict['!SBML:reaction:id']] != '' and \
+                                                                        not self.is_number(row[sbtab_reaction.columns_dict['!SBML:reaction:id']]):
                 react.setId(str(row[sbtab_reaction.columns_dict['!SBML:reaction:id']]))
             else: react.setId(str(row[sbtab_reaction.columns_dict['!ID']]))
 
-            if '!Name' in sbtab_reaction.columns and \
-               not row[sbtab_reaction.columns_dict['!Name']] == '':
+            if '!Name' in sbtab_reaction.columns:
+               if row[sbtab_reaction.columns_dict['!Name']] != '':
                 if '|' in row[sbtab_reaction.columns_dict['!Name']]:
                     react.setName(str(row[sbtab_reaction.columns_dict['!Name']].split('|')[0]))
                 else: react.setName(str(row[sbtab_reaction.columns_dict['!Name']]))
-            else: react.setName(str(row[sbtab_reaction.columns_dict['!Reaction']]))
-            
+            else: react.setName(str(row[sbtab_reaction.columns_dict['!ID']]))
+
             # some more options
-            if '!SBOTerm' in sbtab_reaction.columns and \
-               row[sbtab_reaction.columns_dict['!SBOTerm']] != '':
-                try: react.setSBOTerm(int(row[sbtab_reaction.columns_dict['!SBOTerm']][4:]))
-                except: pass
+            if '!SBOTerm' in sbtab_reaction.columns:
+                if row[sbtab_reaction.columns_dict['!SBOTerm']] != '':
+                    try: react.setSBOTerm(int(row[sbtab_reaction.columns_dict['!SBOTerm']][4:]))
+                    except: pass
 
             if '!IsReversible' in sbtab_reaction.columns and \
                row[sbtab_reaction.columns_dict['!IsReversible']] != '':
@@ -446,16 +458,16 @@ class SBtabDocument:
             #if sumformula is at hand: generate reactants and products
             if '!ReactionFormula' in sbtab_reaction.columns and \
                row[sbtab_reaction.columns_dict['!ReactionFormula']] != '':
-                for educt in self.reaction2reactants[react.getId()][0]:
+                for educt in self.reaction2reactants[row[sbtab_reaction.columns_dict['!ID']]][0]:
                     if educt == '': continue
                     reactant = react.createReactant()
-                    if educt in self.id2sbmlid.keys():
-                        if self.id2sbmlid[educt] != None: reactant.setSpecies(self.id2sbmlid[educt])
+                    if educt in self.id2sbmlid:
+                        if self.id2sbmlid[educt] != None:
+                            reactant.setSpecies(self.id2sbmlid[educt])
                         else: reactant.setSpecies(educt)
                     else: reactant.setSpecies(educt)
                     reactant.setStoichiometry(self.rrps2stoichiometry[row[sbtab_reaction.columns_dict['!ID']],educt])
-
-                for product in self.reaction2reactants[react.getId()][1]:
+                for product in self.reaction2reactants[row[sbtab_reaction.columns_dict['!ID']]][1]:
                     if product == '': continue
                     reactant = react.createProduct()
                     if product in self.id2sbmlid.keys():
@@ -475,7 +487,6 @@ class SBtabDocument:
                 else:
                     react.setCompartment(row[loc_column])
             '''
-
             #if an enzyme is given, mark it as modifier to the reaction
             try:
                 sbtab_reaction.columns_dict['!Regulator']
@@ -532,7 +543,6 @@ class SBtabDocument:
                         self.modifier_list.append(row[sbtab_reaction.columns_dict['!Regulator']])
 
             except: pass
-
             '''
             #if metabolic regulators are given: extract them and create them
             try:
@@ -574,7 +584,7 @@ class SBtabDocument:
                     except:
                         print 'There was an annotation that I could not assign properly: ',react.getId(),annot #,urn
 
-            '''            
+            '''
             #since local parameters need to be entered *after* reaction creation, but *before* setting
             try:
                 sbtab_reaction.columns_dict['!KineticLaw']
@@ -588,6 +598,7 @@ class SBtabDocument:
                         react.unsetKineticLaw()
             except: pass
 
+            
     def unit_def_mm(self):
         '''
         build unit definition
@@ -666,10 +677,7 @@ class SBtabDocument:
         products = []
         
         for reaction in sbtab.value_rows:
-            if '!ID' in sbtab.columns and \
-               reaction[sbtab.columns_dict['!ID']] != '':
-                r_id = reaction[sbtab.columns_dict['!ID']]
-            else: r_id   = reaction[sbtab.columns_dict['!Reaction']]
+            r_id = reaction[sbtab.columns_dict['!ID']]
             if '!Location' in sbtab.columns:
                 self.reaction2compartment[r_id] = reaction[sbtab.columns_dict['!Location']]
             sum_formula  = reaction[sbtab.columns_dict['!ReactionFormula']]
@@ -691,7 +699,6 @@ class SBtabDocument:
                         self.rrps2stoichiometry[r_id,educt.lstrip().rstrip()] = 1
                         educts.append(educt.lstrip().rstrip())
             except: pass
-
 
             #check the products
             try:
