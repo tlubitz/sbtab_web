@@ -24,7 +24,7 @@ import xlrd
 import SBtab
 
 def index():
-    redirect(URL('../../static/introduction.html'))
+    redirect(URL('../../static/index.html'))
 
 def clearsession():
     session.sbtabs = []
