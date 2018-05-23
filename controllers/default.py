@@ -47,7 +47,7 @@ def clearsession():
     session.warnings_con = []
     session.warnings_def = []
     
-    redirect('http://www.sbtab.net')
+    redirect(URL('../../static/index.html'))
 
 def validator():
     """
@@ -94,10 +94,11 @@ def validator():
 
         # validate file name
         try:
-            sbtab_file = request.vars.File.value.decode('utf-8')
+            sbtab_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
-            session.warnings_val.append('The file does not adhere to spreadsheet standards.')
+            session.warnings_val.append('The file has a faulty encryption. Please use UTF-8 instead.')
             redirect(URL(''))
+
         filename = request.vars.File.filename
         if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xls'):
             session.warnings_val.append('The file does not have a correct file format. Please use csv/tsv/xls only.')
@@ -236,7 +237,7 @@ def converter():
             session.types = []
 
         # validate file name
-        try: sbtab_file = request.vars.File.value.decode('utf-8')
+        try: sbtab_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
             session.warnings_con.append('The file does not adhere to spreadsheet standards.')
             redirect(URL(''))
@@ -304,7 +305,7 @@ def converter():
         session.warnings_con = []
 
         filename = request.vars.File.filename
-        sbml_file = request.vars.File.value.decode('utf-8')
+        sbml_file = request.vars.File.value.decode('utf-8', 'ignore')
         if filename[-3:] != 'xml' and filename[-4:] != 'sbml':
             session.warnings_con.append('The uploaded file has a wrong extension for an SBML file.')
             redirect(URL(''))
@@ -554,7 +555,7 @@ def def_files():
             except:
                 session.warnings_val.append('There was an error reading the definition file.')
         
-        try: sbtab_def_file = request.vars.File.value.decode('utf-8')
+        try: sbtab_def_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
             session.warnings_def.append('The file is not a valid SBtab file.')
             redirect(URL(''))
