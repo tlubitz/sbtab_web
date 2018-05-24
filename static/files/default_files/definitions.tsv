@@ -169,6 +169,7 @@ SBOTerm	Column	Quantity	string	SBO term of the entity
 Identifiers	Column	Quantity	string	Annotation of the entity
 BiologicalElement	Column	Quantity	string	Biological element
 MathematicalType	Column	Quantity	string	Mathematical type
+DataGeometricStd	Column	Quantity	float	Data geometric standard error
 PriorMedian	Column	Quantity	float	Prior Median
 PriorStd	Column	Quantity	float	Prior Std
 PriorGeometricStd	Column	Quantity	float	Prior Geometric Std
