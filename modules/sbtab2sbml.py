@@ -88,13 +88,14 @@ class SBtabDocument:
             return (False, self.warnings)
 
         # 2. build compounds
+        self.compound_sbtab()
         try:
             if 'Compound' in self.sbtab_doc.types:
                 self.compound_sbtab()
         except:
             self.warnings.append('Warning: The provided compounds could not b'\
-                                 'e initialised. Please check for valid compo'\
-                                 'und information.')
+                                 'e initialised properly. Please check for va'\
+                                 'lid compound information.')
 
         # 3. build reactions
         try:
@@ -133,6 +134,7 @@ class SBtabDocument:
         possible reaction and/or compound SBtab for compartments; if all of
         these do not work, we need one default compartment
         '''
+        def_comp_set = False
         #1. check for compartment SBtab
         if 'Compartment' in self.sbtab_doc.types:
             try:
@@ -316,6 +318,20 @@ class SBtabDocument:
                             species.setBoundaryCondition(1)
                         except: pass
 
+                if '!Comment' in sbtab_compound.columns and \
+                   row[sbtab_compound.columns_dict['!Comment']] != '':
+                    try:
+                        note = '<body xmlns="http://www.w3.org/1999/xhtml"><p>%s</p></body>' % row[sbtab_compound.columns_dict['!Comment']]
+                        species.setNotes(note)
+                    except: pass
+
+                if '!ReferenceName' in sbtab_compound.columns and \
+                   row[sbtab_compound.columns_dict['!ReferenceName']] != '':
+                    try:
+                        note = '<body xmlns="http://www.w3.org/1999/xhtml"><p>%s</p></body>' % row[sbtab_compound.columns_dict['!ReferenceName']]
+                        species.setNotes(note)
+                    except: pass
+                    
                 if '!SBOTerm' in sbtab_compound.columns and \
                    row[sbtab_compound.columns_dict['!SBOTerm']] != '':
                     try: species.setSBOTerm(int(row[sbtab_compound.columns_dict['!SBOTerm']][4:]))

@@ -347,35 +347,35 @@ def converter():
             redirect(URL(''))
 
         # convert SBtab document to SBML and add details to session
-        try:
-            ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
-            (sbml,
-             session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
-            filename_new = sbtab.filename[:-4] + '.xml'
-            # if the sbml build up crashed:
-            if not sbml:
-                session.warnings_con.append('The SBtab file %s could not be c'\
-                                            'onverted to SBML. Please check file'\
-                                            'validity.' % sbtab.filename)
-                redirect(URL(''))
-           
-            if 'sbmls' not in session:
-                session.sbmls = [sbml]
-                session.sbml_filenames = [filename_new]
-            else:
-                if not filename_new in session.sbml_filenames:
-                    session.sbmls.append(sbml)
-                    session.sbml_filenames.append(filename_new)
-                else:
-                    session.warnings_con.append('A file with the name %s has alre'\
-                                                'ady been uploaded. Please rename'\
-                                                ' your SBtab file/s before SBML c'\
-                                                'reation.' % filename_new)
-                    redirect(URL(''))
-        except:
-            session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
-                                        'ot successful.' % sbtab.filename)
+        #try:
+        ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
+        (sbml,
+         session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
+        filename_new = sbtab.filename[:-4] + '.xml'
+        # if the sbml build up crashed:
+        if not sbml:
+            session.warnings_con.append('The SBtab file %s could not be c'\
+                                        'onverted to SBML. Please check file'\
+                                        'validity.' % sbtab.filename)
             redirect(URL(''))
+
+        if 'sbmls' not in session:
+            session.sbmls = [sbml]
+            session.sbml_filenames = [filename_new]
+        else:
+            if not filename_new in session.sbml_filenames:
+                session.sbmls.append(sbml)
+                session.sbml_filenames.append(filename_new)
+            else:
+                session.warnings_con.append('A file with the name %s has alre'\
+                                            'ady been uploaded. Please rename'\
+                                            ' your SBtab file/s before SBML c'\
+                                            'reation.' % filename_new)
+                redirect(URL(''))
+        #except:
+        #    session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
+        #                                'ot successful.' % sbtab.filename)
+        #    redirect(URL(''))
 
     # convert multiple sbtabs to sbml
     if request.vars.convert_all_button24 or request.vars.convert_all_button31:

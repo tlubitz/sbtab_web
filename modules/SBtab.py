@@ -85,6 +85,7 @@ class SBtabTable():
         for row in table_string.split('\n'):
             if row.replace(self.delimiter, '') != '':
                 table_list.append(row.split(self.delimiter))
+
         return table_list
 
     def return_table_string(self):
