@@ -103,6 +103,9 @@ class SBtabTable():
         '''
         Loads table informations and class variables.
         '''
+        # read a potential document row
+        self.doc_row = self._get_doc_row()
+        
         # Read the header row from table
         self.header_row = self._get_header_row()
 
@@ -150,6 +153,27 @@ class SBtabTable():
         
         return tablibtable, new_table
 
+    def _get_doc_row(self):
+        '''
+        see if the SBtab Table holds a !!!-line to declare a belonging SBtab
+        document
+        '''
+        doc_row_dq = False
+        for row in self.table:
+            for entry in row:
+                if str(entry).startswith('!!!'):
+                    doc_row = row
+                    break
+                elif str(entry).startswith('"!!!'):
+                    rm1 = row.replace('""', '#')
+                    rm2 = row.remove('"')
+                    doc_row = rm2.replace('#', '"')
+                    break
+
+        doc_row_dq = self.dequote(doc_row)
+
+        return doc_row_dq
+    
     def _get_header_row(self):
         '''
         Extracts the declaration row from the SBtab file.
@@ -174,27 +198,34 @@ class SBtabTable():
         else:
             header_row = ' '.join(header_row)
 
-        # Replace double quotes by single quotes
+        header_row_dq = self.dequote(header_row)
+
+        return header_row_dq
+            
+    def dequote(self, row):
+        '''
+        bring consistency in the multifarious quotation mark problems
+        '''
         stupid_quotes = ['"', '\xe2\x80\x9d', '\xe2\x80\x98', '\xe2\x80\x99',
                          '\xe2\x80\x9b', '\xe2\x80\x9c', '\xe2\x80\x9f',
                          '\xe2\x80\xb2', '\xe2\x80\xb3', '\xe2\x80\xb4',
                          '\xe2\x80\xb5', '\xe2\x80\xb6', '\xe2\x80\xb7']
 
         for squote in stupid_quotes:
-            try: header_row = header_row.replace(squote, "'")
+            try: row = row.replace(squote, "'")
             except: pass
 
         # Split header row
-        header_row = header_row.split(' ')
+        #row = row.split(' ')
 
         # Delete spaces in header row
-        while '' in header_row:
-            header_row.remove('')
+        # while '' in row:
+        #    row.remove('')
 
-        header = ""
-        for x in header_row[:-1]:
-            header += x + ' '
-        header += header_row[-1]
+        #header = ""
+        #for x in header_row[:-1]:
+        #    header += x + ' '
+        #header += header_row[-1]
 
         return header
 
@@ -625,7 +656,7 @@ class SBtabDocument:
     '''
     The SBtab document class can consist of one or more SBtab Table objects
     '''
-    def __init__(self, name, sbtab_init = None):
+    def __init__(self, name, sbtab_init=None, filename=None):
         '''
         simple initialisation of SBtabDocument with an optional SBtab Table object
         '''
@@ -635,8 +666,13 @@ class SBtabDocument:
         self.types = []
         self.type_to_sbtab = {}
         self.warnings = []
+        self.doc_row = False
 
-        if sbtab_init:
+        # if there is an initial sbtab given, see if it is
+        # a string or an SBtab object
+        if sbtab_init and type(sbtab_init) == str:
+            self.add_sbtab_string(string_init)
+        elif sbtab_init:
             self.add_sbtab(sbtab_init)
         
     def add_sbtab(self, sbtab):
@@ -651,9 +687,61 @@ class SBtabDocument:
                 self.sbtabs.append(sbtab)
                 self.types.append(sbtab.table_type)
                 self.type_to_sbtab[sbtab.table_type] = sbtab
+
+                # actualise the document declaration row
+                if sbtab.doc_row and not self.doc_row:
+                    self.doc_row = sbtab.doc_row
+                elif sbtab.doc_row:
+                    self.doc_row = sbtab.doc_row
+                    self.warnings.append('Warning: The current document decla'\
+                                         'ration line %s is overridden with d'
+                                         'eclaration line '
+                                         '%s.' % (self.doc_row,
+                                                  sbtab.doc_row))
+                if self.doc_row:
+                    self._get_doc_row()
         else:
             self.warnings.append('The SBtab %s could not be added since either the name or the table type is already present in this SBtab Document.')
 
+    def _get_doc_row(self):
+        '''
+        read content of the !!!-document declaration row
+        '''
+        # update this as soon as we know the attributes we allow in the
+        # declaration row
+        pass
+            
+    def add_sbtab_string(self, sbtab_string, filename):
+        '''
+        add one or multiple SBtab files as string
+        '''
+        # set filename if not given
+        if not filename: filename = 'unnamed_sbtab'
+
+        # see if there are more than one SBtabs in the string
+        try: sbtab_amount = misc.count_tabs(sbtab_string)
+        except:
+            self.warnings.append('The SBtab file could not be read properly.')
+
+        # if there are more than one SBtabs, cut them in single SBtabs
+        if sbtab_amount > 1:
+            try:
+                sbtab_strings = misc.split_sbtabs(sbtab_string)
+                for i, sbtab_s in enumerate(sbtab_strings):
+                    name_single = filename + '_' + str(i)
+                    sbtab_single = SBtab.SBtabTable(sbtab_s, name_single)
+                    self.add_sbtab(sbtab_single)
+            except:
+                self.warnings.append('The SBtab Table object could not be cre'\
+                                     'ated properly.')
+        else:
+            try:
+                sbtab = SBtab.SBtabTable(sbtab_string, filename)
+                self.add_sbtab(sbtab)
+            except:
+                self.warnings.append('The SBtab Table object could not be cre'\
+                                     'ated properly.')
+            
     def check_type_validity(self, ttype):
         '''
         only certain table types are valid; this function checks if the
