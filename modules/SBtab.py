@@ -48,16 +48,19 @@ class SBtabTable():
         # Needed to be able to adress it from outside of the class for
         # writing and reading
         self.filename = filename
+        
         # validate file extension
         self.validate_extension()
+        
         # process string
         self.delimiter = misc.check_delimiter(table_string)
         table_list = self.cut_table_string(table_string)
+        
         # check if ascii stuff is violated
         try: (self.table, self.str_tab) = self.check_ascii(table_list)
-        except: raise SBtabError('''This is not a valid SBtab file. Try to
-        check your file with the SBtab validator or read the
-        SBtab specification.''')
+        except: raise SBtabError('This is not a valid SBtab file. Try to chec'\
+                                 'k your file with the SBtab validator or rea'\
+                                 'd the SBtab specification.')
 
         # Delete tablib header to avoid complications
         if self.table.headers: self.table.headers = None
@@ -122,9 +125,6 @@ class SBtabTable():
 
         # Read data rows
         self.value_rows = self.get_rows(self.table_type)
-
-        # Update the list and tablib object
-        self.update()
         
     def check_ascii(self, table):
         '''
@@ -212,18 +212,6 @@ class SBtabTable():
         for squote in stupid_quotes:
             try: row = row.replace(squote, "'")
             except: pass
-
-        # Split header row
-        #row = row.split(' ')
-
-        # Delete spaces in header row
-        # while '' in row:
-        #    row.remove('')
-
-        #header = ""
-        #for x in header_row[:-1]:
-        #    header += x + ' '
-        #header += header_row[-1]
 
         return row
 
@@ -325,6 +313,9 @@ class SBtabTable():
 
         return value_rows
 
+
+    # Here, the SBtab API actually starts
+    
     def change_value(self, row, column, new):
         '''
         Change single value in the SBtab table by position in the table.
@@ -338,11 +329,19 @@ class SBtabTable():
         new : str
             New entry.
         '''
-        self.value_rows[row - 1][column - 1] = new
+        try: self.value_rows[row - 1]
+        except:
+            raise SBtabError('The SBtab has only %s rows.' % len(self.value_rows))
+        try: self.columns[column - 1]
+        except:
+            raise SBtabError('The SBtab has only %s columns.' % len(self.columns))
+        
+        try: self.value_rows[row - 1][column - 1] = str(new)
+        except:
+            raise SBtabError('Could not set the given value.')
 
-        # Update object
-        self.update()
-
+        return True
+        
     def change_value_by_name(self, name, column_name, new):
         '''
         Change singe value in the SBtab by name of column
@@ -353,17 +352,25 @@ class SBtabTable():
         row : str
             Name of the entry in the first column.
         column : str
-            Name of the column (without '!')
+            Name of the column (with '!')
         new : str
             New entry.
         '''
+        try: self.columns_dict[column_name]
+        except:
+            raise SBtabError('The column %s is not in the SBtab.' % column_name)
+
+        success = False
         col = self.columns_dict[column_name]
         for r in self.value_rows:
             if r[0] == name:
-                r[col] = new
+                r[col] = str(new)
+                success = True
 
-        # Update object
-        self.update()
+        if not success:
+            raise SBtabError('Row %s was not found in the SBtab.' % name)
+
+        return True
 
     def create_list(self):
         '''
@@ -372,59 +379,13 @@ class SBtabTable():
         # Create new list
         sbtab_list = []
 
-        # Append the parts header row, main column row and value
-        # rows to the list
-        sbtab_list.append(self.header_row)
+        # Append the parts header row, main column row and
+        # value rows to the list
+        sbtab_list.append([self.header_row])
         sbtab_list.append(self.columns)
         sbtab_list.append(self.value_rows)
 
         return sbtab_list
-
-    def create_dataset(self):
-        '''
-        Creates a tablib object of the SBtab Python object.
-        '''
-        # Initialize empty variables for conversion
-        sbtab_temp = []
-        self.sbtab_dataset = tablib.Dataset()
-
-        # Create list of header
-        header = [self.header_row]
-
-        # Delete spaces in header, main column and data rows
-        header = [x.strip(' ') for x in header]
-        self.columns = [x.strip(' ') for x in self.columns]
-        for row in self.value_rows:
-            try:
-                for entry in row:
-                    entry = entry.strip(' ')
-            except:
-                continue
-
-        # Add header, main column and data rows to temporary list object
-        sbtab_temp.append(header)
-        sbtab_temp.append(self.columns)
-        for row in self.value_rows:
-            sbtab_temp.append(row)
-
-        # Delete all empty entries at the end of the rows
-        sb1 = []
-        for row in sbtab_temp:
-            if row[0] != '':
-                sb1.append(row)
-
-        # Make all rows the same length
-        longest = max([len(x) for x in sb1])
-        
-        for row in sb1:
-            if len(row) < longest:
-                for i in range(longest - len(row)):
-                    row.append('')
-                self.sbtab_dataset.append(row)
-            else:
-                self.sbtab_dataset.append(row)
-
-        return self.sbtab_dataset
 
     def add_row(self, row_list, position=None):
         '''
@@ -437,20 +398,18 @@ class SBtabTable():
         position : int
             Position of new row in the table, 0 is on top.
         '''
-        # Empty column to fill up sbtab_dataset with ''
-        empty_list = []
+        if type(row_list) != list:
+            raise SBtabError('%s is not a list' % row_list)
 
-        # Create temporary work copy
-        sbtab_dataset = self.table
+        if len(row_list) != len(self.columns):
+            raise SBtabError('Given row %s has not the correct length.' % row_list)
 
-        # If new row is too small, add empty entries to new row
-        if len(row_list) < len(self.columns):
-            for i in range(len(self.columns) - len(row_list)):
-                row_list.append('')
-        # If new row is too long, add empty entries to sbtab_dataset
-        elif len(row_list) > len(self.columns):
-            for i in range(len(self.columns)):
-                empty_list.append('')
+        if position != None and type(position) != int:
+            raise SBtabError('Please provide an integer row position.')
+
+        for element in row_list:
+            if type(element) != str:
+                raise SBtabError('Please only provide string elements in the list')
 
         # If no position is set, add new row to the end
         if position is None:
@@ -458,9 +417,7 @@ class SBtabTable():
         else:
             self.value_rows.insert(position, row_list)
 
-        # Update object
-        #self.table = sbtab_dataset
-        self.initialize_table()
+        return True
 
     def remove_row(self, position):
         '''
@@ -471,14 +428,15 @@ class SBtabTable():
         position : int
             Position of row to be removed. Starting with 1.
         '''
-        # Create temporary work copy
-        sbtab_dataset = self.table
+        if not type(position) == int:
+            raise SBtabError('Please provide an integer row position.')
 
-        del sbtab_dataset[position]
+        if position > len(self.value_rows):
+            raise SBtabError('The SBtab only has %s row/s.' % len(self.value_rows))
+       
+        del self.value_rows[position-1]
 
-        # Update object
-        self.table = sbtab_dataset
-        #self.initialize_table()
+        return True
 
     def add_column(self, column_list, position=None):
         '''
@@ -491,34 +449,28 @@ class SBtabTable():
         position : int
             Position of new column in the table, 0 is right.
         '''
-        # If new column is too small, add empty entries to new column
-        if len(column_list) < (len(self.value_rows) + 1):
-            for i in range((len(self.value_rows) + 1) - len(column_list)):
-                column_list.append('')
-        # If new column is too long, add empty entries to sbtab_dataset
-        elif len(column_list) > (len(self.value_rows) + 1):
-            empty_row = [''] * len(self.columns)
-            for i in range(len(column_list) -
-                           (len(self.value_rows) + 1)):
-                self.value_rows.append(empty_row)
+        if type(column_list) != list:
+            raise SBtabError('%s is not a list' % column_list)
+        
+        if len(column_list) != (len(self.value_rows) + 1):
+            raise SBtabError('The given column list has not the correct length.')
 
+        if position != None and type(position) != int:
+            raise SBtabError('Please provide an integer column position.')
+                
         # If no position is set, add new column to the end
         if not position:
             for i, row in enumerate(self.value_rows):
-                row.append(column_list[i + 1])
-            self.columns_dict[column_list[0]] = len(self.columns)
-            self.columns.append(column_list[0])
-            #self.columns = self.columns_dict.keys()
+                row.append(str(column_list[i + 1]))
+            self.columns_dict[str(column_list[0])] = len(self.columns)
+            self.columns.append(str(column_list[0]))
         else:
             for i, row in enumerate(self.value_rows):
-                row.insert(position - 1, column_list[i + 1])
-            self.columns_dict[column_list[0]] = position - 1
-            self.columns.insert(position - 1, column_list[0])
-            
-            #self.columns = self.columns_dict.keys()
+                row.insert(position - 1, str(column_list[i + 1]))
+            self.columns_dict[str(column_list[0])] = position - 1
+            self.columns.insert(position - 1, str(column_list[0]))
 
-        # Update object
-        self.update()
+        return True
 
     def remove_column(self, position):
         '''
@@ -529,82 +481,47 @@ class SBtabTable():
         position : int
             Position of column to be removed. Sarting with 1.
         '''
+        if type(position) != int:
+            raise SBtabError('Please provide an integer column position.')
+        
+        if position > len(self.columns):
+            raise SBtabError('There are only %s columns in the SBtab' % str(len(self.columns)))
+        
         # Remove entries on position
         for row in self.value_rows:
-            del row[position + 1]
-        for column in self.columns_dict.keys():
-            if self.columns_dict[column] == position - 1:
-                del self.columns_dict[column]
+            del row[position - 1]
+            
+        # Remove column from column list
+        column_to_remove = self.columns[position - 1]
+        del self.columns[position - 1]
 
-        # Update object
-        self.update()
+        # Remove column from columns dict
+        self.columns_dict.pop(column_to_remove)
+
+        return True
 
     def write(self, filename):
         '''
         write SBtab to hard disk
         '''
-        f = open(filename, 'w')
-        f.write(self.return_table_string())
-        f.close()
+        if type(filename) != str:
+            raise SBtabError('Please provide a filename as string.')
+        
+        if not filename.endswith('tsv') and not filename.endswith('csv'):
+            if self.delimiter == '\t': filename += '.tsv'
+            elif self.delimiter == ',': filename += '.csv'
+            elif self.delimiter == ';': filename += '.csv'
+            else:
+                raise SBtabError('The file extension is missing and the '\
+                                 'delimiter is no standard.')
 
-    def write_sbtab(self, format_type, filename=None):
-        '''
-        Writes SBtab tablib object to file.
-
-        Parameters
-        ----------
-        format_type : str
-            File extension of the SBtab file. ('tsv', 'csv', 'tab', 'xls')
-        filename : str
-            Filename of the SBtab file without extension. Default is filename.
-        '''
-        if not filename:
-            filename = self.filename[:-4]
-        if format_type == 'tsv' or format_type == 'tab':
-            tablibIO.writeTSV(self.sbtab_dataset, filename)
-        elif format_type == 'csv':
-            tablibIO.writeCSV(self.sbtab_dataset, filename)
-        elif format_type == 'ods':
-            tablibIO.writeODS(self.sbtab_dataset, filename)
-        elif format_type == 'xls':
-            tablibIO.writeXLS(self.sbtab_dataset, filename)
-        else:
-            raise SBtabError('''The given file format is not supported: %s.
-                                Please use ".tsv", ".csv", ".tab"
-                                or ".xls" instead.''' % (format_type))
-
-    def duplicate(self):
-        '''
-        Creates a copy of the SBtab object.
-        '''
-        sbtab = copy.deepcopy(self)
-
-        return sbtab
-
-    def update(self):
-        '''
-        Updates the SBtab instance, list object, and tablib dataset.
-        '''
-        # Create tablib Dataset instance with new SBtab table
-        self.table = self.create_dataset()
-
-        # Create list instance with new SBtab table
-        self.sbtab_list = self.create_list()
-
-    def create_sbtab_dict(self):
-        '''
-        Creates a dict instance of the SBtab table.
-        Keys are the column names, values are dicts. These contain the entries
-        of the table. Keys are the entries in the first column, values are the
-        current entries in the certain column.
-        '''
-        sbtab_dicts = {}
-        for column_name in self.columns:
-            sbtab_dicts[column_name] = {}
-            for row in self.value_rows:
-                sbtab_dicts[column_name][row[0]] = row[self.columns_dict[column_name]]
-
-        return sbtab_dicts
+        try:
+            f = open(filename, 'w')
+            f.write(self.return_table_string())
+            f.close()
+            return True
+        except:
+            raise SBtabError('The file could not be written.')
 
     def transpose_table(self):
         '''
@@ -624,7 +541,7 @@ class SBtabTable():
 
         # Set new rows
         for column in columns:
-                trans_value_rows.append([column])
+            trans_value_rows.append([column])
 
         # Set new values in tables
         for row in value_rows:
@@ -641,13 +558,19 @@ class SBtabTable():
         self.columns_dict = trans_columns_dict
         self.value_rows = trans_value_rows
 
-        self.update()
+        return True
 
     def to_data_frame(self):
-        import pandas as pd
-        column_names = map(lambda s: s[1:], self.columns)
-        df = pd.DataFrame(data=self.get_rows(), columns=column_names)
-        return df
+        '''
+        Exports SBtab table object as pandas dataframe
+        '''
+        try:
+            import pandas as pd
+            column_names = map(lambda s: s[1:], self.columns)
+            df = pd.DataFrame(data=self.get_rows(), columns=column_names)
+            return df
+        except:
+            raise SBtabError('Pandas dataframe could not be built.')
 
 
 class SBtabDocument:
