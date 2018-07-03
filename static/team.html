@@ -1,44 +1,109 @@
-<!doctype html>
 <html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta name="author" content="Timo Lubitz">
+    <meta name="description"  content="SBtab Website">
+    
+    <!-- this is required for responsiveness -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- add bootstrap CSS; normalize for JS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+    <link href="css/bootstrap.css" rel="stylesheet">  <!-- Lumen Layout --> 
+    <link rel="stylesheet" type="text/css" href="css/sbtab.css">  <!-- Custom Layout -->
+
     <title>SBtab - Standardised data tables for Systems Biology</title>
-    <link rel="stylesheet" type="text/css" href="./sbtab.css">
-    <link rel="icon" type="image/png" href="./images/sbtab_favicon.png">
+    <link rel="icon" type="image/png" href="images/sbtab_favicon.png">
   </head>
 
   <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="https://www.sbtab.net"><img class="sb" src="images/sbtab-logo-nav.png" alt="SBtab Logo" style="width:80px"></a>
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation" style="">
+	<span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarColor01">
+	<ul class="navbar-nav mr-auto">
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net">Home</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/static/introduction.html">Getting started <span class="sr-only">(current)</span></a>
+	  </li>
+	  <li class="nav-item active">
+            <a class="nav-link" href="https://www.sbtab.net/static/specification.html">Specification</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/default/validator.html">Validator</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/default/converter.html">SBML</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/default/def_files.html">Customize SBtab</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/static/code.html">Code</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/static/troubles.html">Troubleshooting</a>
+	  </li>
+	  <li class="nav-item">
+            <a class="nav-link" href="https://www.sbtab.net/static/team.html">Contact</a>
+	  </li>
+	</ul>
+	<!--
+	<form class="form-inline my-2 my-lg-0">
+	  <input class="form-control mr-sm-2" type="text" placeholder="Search">
+	  <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+	</form>
+	-->
+      </div>
+    </nav>
 
-<a href="./index.html"><image width = "200" src="images/sbtab-logo.jpg"></a>
+    <header>
+      <div class="container-fluid bg-1 text-center">
+	<div class="jumbotron" align="center">
+	  <h1><small>The SBtab Team</small></h1>
+	</div>
+      </div>
+    </header>
 
-    <h3>The SBtab team</h3>
-
-<p>
-  <ol >
-    <li> <a href="https://www.metabolic-economics.de/liebermeister/index.html">Wolfram Liebermeister</a>
-      (Charit&eacute; - Universit&auml;tsmedizin Berlin) </li>
-    <li> <a href="mailto:timo.lubitz@gmail.com">Timo Lubitz</a> (Humboldt University Berlin) </li>
-    <li> Elad Noor (ETH Z&uuml;rich) </li>
-    <li> Frank T. Bergmann (Heidelberg University)  </li>
-  </ol>
-</p>
-
-<p>We are grateful to our colleagues who contributed ideas to the SBtab
-format: Dagmar Waltemath, Hans-Michael Kaltenbach, Dirk Wiesenthal,
-Jannis Uhlendorf, Anne Goelzer, J&ouml;rg B&uuml;scher, Avi Flamholz,
-Elad Noor, Edda Klipp, Frank Bergmann, Phillipp Schmidt, and Matthias
-K&ouml;nig.</p>
-
-    <hr align="left" width="720">
-    <p>
-      <a href="./index.html">Main</a> | 
-      <a href="./introduction.html">Getting started</a> |
-      <a href="./specification.html">Specification</a> |
-      <a href="../default/validator">Validator</a> | 
-      <a href="../default/converter">SBML</a> |
-      <a href="../default/def_files">Customize SBtab</a> |
-      <a href="./code.html">Code</a> |
-      <a href="./team.html">Contact</a> 
-    </p>
-
+    <main>
+      <div class="container-fluid bg-3 text-center">
+	<div class="row" align="left">
+	  <div class="col-sm-2"></div>
+	  <div class="col-sm-8 textblock">
+	    <ul class="list-group" style="padding-bottom:50px">
+	      <li class="list-group-item">
+		<a href="https://www.metabolic-economics.de/liebermeister/index.html">Wolfram Liebermeister</a> (Charit&eacute; - Universit&auml;tsmedizin Berlin)	
+	      </li>
+	      <li class="list-group-item">
+		<a href="mailto:timo.lubitz@gmail.com">Timo Lubitz</a> (Humboldt University Berlin)
+	      </li>
+	      <li class="list-group-item">
+		Elad Noor (ETH Zürich)
+	      </li>
+	      <li class="list-group-item">
+		Frank T. Bergmann (Heidelberg University)
+	      </li>
+	    </ul>
+	    
+	    <p style="width:100% !important;">We are grateful to our colleagues who contributed ideas to the SBtab
+	      format: <br>Jens Hahn, Dagmar Waltemath, Hans-Michael Kaltenbach, Dirk Wiesenthal,
+	      Jannis Uhlendorf, Anne Goelzer, Jörg Büscher, Avi Flamholz,
+	      Edda Klipp, Phillipp Schmidt, and Matthias König.
+	    </p>
+	  </div>
+	  <div class="col-sm-2"></div>
+	</div>
+      </div>
+    </main>
+	  
   </body>
 </html>
