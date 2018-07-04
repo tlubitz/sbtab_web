@@ -49,14 +49,14 @@
 
           {{for pos2,g in enumerate(DOC_NAMES):}}
 	  {{if not g in displayedg:}}
-	  <div class="card" style="text-align:center;width:100%;">
+	  <div class="card" style="text-align:center;width:100%;margin-top:20px;">
 	    <div class="card-header">
 	      SBtab document <strong>{{=g}}</strong>
 	      {{displayedg.append(g)}}
               {{if list(NAME2DOC.values()).count(g) > 1:}}
 	      {{if "Reaction" in TYPES or "Compound" in TYPES:}}
 	      <div class="btn-group btn-group-toggle" style="text-align:center;width:100%;padding-top:10px;">
-		<form>
+		<form style="text-align:center;width:100%;padding-top:10px;">
 		  <button class="btn" type="submit" value="{{=pos2}}" name="convert_all_button24" valign="top">Convert to SBML 2.4</button>
 		  <button class="btn" type="submit" value="{{=pos2}}" name="convert_all_button31" valign="top">Convert to SBML 3.1</button>
 		  <button class="btn" type="submit" value="{{=pos2}}" name="remove_all_button">Remove all</button>
@@ -92,6 +92,7 @@
 		  <button class="btn" type="submit" value="{{=pos}}" name="dl_xls_sbtab_button">Download as .xls</button>
 		</form>
 	      </div>
+	      <br>
 
 	      {{pass}}
 	      {{pass}}
