@@ -1,5 +1,9 @@
 {{extend 'layout2.html'}}
 
+{{block title}}
+<title>SBtab Online Validator</title>
+{{end}}
+
 {{block dynamic_nav}}
 <li class="nav-item active">
   <a class="nav-link" href="https://www.sbtab.net/default/validator.html">Validator</a>
@@ -66,7 +70,6 @@
 	      <div class="btn-group btn-group-toggle">
 		<form>
 		  <button class="btn" type="submit" value="{{=pos}}" name="validate_button">Validate</button>
-
 		  <button class="btn" type="submit" value="{{=pos}}" name="erase_button">Remove</button>
 		</form>
 	      </div>
