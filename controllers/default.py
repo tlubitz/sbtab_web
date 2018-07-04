@@ -155,8 +155,7 @@ def validator():
     # validate
     if request.vars.validate_button:
         sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
-        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)],
-                                                       session.definition_file)
+        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
         output = TableValidClass.return_output()
 
     # erase
@@ -165,7 +164,9 @@ def validator():
         del session.sbtabs[int(request.vars.erase_button)]
         del session.sbtab_filenames[int(request.vars.erase_button)]
         del session.types[int(request.vars.erase_button)]
-        del session.sbtab_docnames[int(request.vars.erase_button)]
+        doc_name = session.name2doc[flname]
+        if list(session.name2doc.values()).count(doc_name) == 1:
+            session.sbtab_docnames.remove(doc_name)
         del session.name2doc[flname]
         session.warnings_val = []
         redirect(URL(''))
