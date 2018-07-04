@@ -1,5 +1,20 @@
 {{extend 'layout2.html'}}
+<link rel="stylesheet" type="text/css" href="/sbtab_web/static/css/sbtab.css">  <!-- Custom Layout -->
 
+{{block dynamic_nav}}
+<li class="nav-item active">
+  <a class="nav-link" href="https://www.sbtab.net/default/validator.html">Validator</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/default/converter.html">SBML</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/default/def_files.html">Customize SBtab</a>
+</li>
+{{end}}
+
+
+{{block center}}
 <header>
   <div class="container-fluid bg-1 text-center">
     <div class="jumbotron" align="center">
@@ -10,88 +25,122 @@
 
 <main>
   <div class="container-fluid bg-3 text-center">
-    <div class="row" align="left">
+    <div class="row">
       <div class="col-sm-2"></div>
       <div class="col-sm-8">
 
 	<section>
-	  <p>
+	  <div style="text-align:center;width:100%;padding-bottom:10px;">
 	    Information on the SBtab validator can be found in the <a href="../static/files/validator_manual.pdf">manual</a>.
-	  </p>
+	  </div>
+	  
 	  {{=UPL_FORM}}
 	  
 	  {{if NAME_LIST:}}
 	  {{displayedf = []}}
 	  {{displayedg = []}}
-	  
+	    
 	  {{for pos2, g in enumerate(DOC_NAMES):}}
 	  {{if not g in displayedg:}}
-	  SBtab document <b>{{=g}}</b>
-	  
-	  {{if list(NAME2DOC.values()).count(g) > 1:}}
-	  <form>
-	    <button type="submit" value="{{=pos2}}" name="remove_all_button_val">Remove all</button>
-	  </form>
+	  <div class="card" style="text-align:center;width:100%;">
+	    <div class="card-header">
+	      SBtab document <strong>{{=g}}</strong>
+	      {{if list(NAME2DOC.values()).count(g) > 1:}}
+	      <div style="text-align:center;width:100%;padding-top:10px;">
+		<form>
+		  <button type="submit" value="{{=pos2}}" name="remove_all_button_val">Remove all</button>
+		</form>
+	      </div>
+	      {{pass}}
+	    </div>
+
+	    <div class="card-body">
+	      
+	      {{for pos,f in enumerate(NAME_LIST):}}
+	      {{if NAME2DOC[f] == g:}}
+	      {{sbtab = str(SBTAB_LIST[0])}}
+	      
+	      <div style="text-align:center;width:100%;padding-bottom:10px">
+		&bull;<a href="show_sbtab/{{=str(pos)}}" target="_new"> {{=f}} </a>
+	      </div>
+	      
+	      <div class="btn-group btn-group-toggle">
+		<form>
+		  <button class="btn" type="submit" value="{{=pos}}" name="validate_button">Validate</button>
+
+		  <button class="btn" type="submit" value="{{=pos}}" name="erase_button">Remove</button>
+		</form>
+	      </div>
+	      {{displayedf.append(f)}}
+	      {{displayedg.append(g)}}
+	      {{pass}}
+	      {{pass}}
+	      {{pass}}
+	    </div>
+	  </div>
 	  {{pass}}
-	  
-	  {{for pos,f in enumerate(NAME_LIST):}}
-	  {{if NAME2DOC[f] == g:}}
-	  {{sbtab = str(SBTAB_LIST[0])}}
-	  
-	  &bull;<a href="show_sbtab/{{=str(pos)}}" target="_new"> {{=f}} </a>
-	  <form>
-	    <button type="submit" value="{{=pos}}" name="validate_button">Validate</button>
-	  </form>
-	  <form>
-	    <button type="submit" value="{{=pos}}" name="erase_button">Remove</button>
-	  </form>
-	  
-	  {{displayedf.append(f)}}
-	  {{displayedg.append(g)}}
-	  {{pass}}
-	  {{pass}}
-	  {{pass}}
-	  {{pass}}
-	  
+	  <br>
+  
 	  {{else:}}
-	  <p>No SBtab files uploaded.</p>
+	  <div style="text-align:center;width:100%;">No SBtab files uploaded.</div>
 	  {{pass}}
+	  
 	</section>
 
-	
+
+	<!--
 	<section>
 	  {{if WARNINGS and SBTAB_VAL:}}
-	  <strong>Warnings for {{=SBTAB_VAL}}:</strong>
+	  <div style="text-align:center;width:100%;">
+	    <strong>Warnings for {{=SBTAB_VAL}}:</strong>
+	  </div>
 
 	  {{for f in WARNINGS:}}
-	  &bull; {{=f}}
+	  <div style="text-align:center;width:100%;">
+	    &bull; {{=f}}
+	  </div>
 	  {{pass}}
 
 	  {{elif WARNINGS:}}
-	  {{=WARNINGS[0]}}
+	  <div style="text-align:center;width:100%;">
+	    {{=WARNINGS[0]}}
+	  </div>
 	  {{else:}}
-	  <p>No warnings detected.</p>
+	  <div style="text-align:center;width:100%;">
+	    No warnings detected.
+	  </div>
 	  {{pass}}	  
 	</section>
+	-->
 
 	
 	<section>
 	  {{if OUTPUT and SBTAB_VAL:}}
-	  <strong>File validation of {{=SBTAB_VAL}}:</strong>
+	  <div style="text-align:center;width:100%;">
+	    <strong>File validation of {{=SBTAB_VAL}}:</strong>
+	  </div>
 
-	  {{for f in OUTPUT:}} 
-	  &bull; {{=f}}
+	  {{for f in OUTPUT:}}
+	  <div style="text-align:center;width:100%;">
+	    &bull; {{=f}}
+	  </div>
 	  {{pass}}
 
 	  {{elif OUTPUT:}}
-	  {{=WARNINGS[0]}}
+	  <div style="text-align:center;width:100%;">
+	    {{=WARNINGS[0]}}
+	  </div>
 	  
 	  {{if DEF_FILE_NAME:}}
-	  The definition file <strong>{{=DEF_FILE_NAME}}</strong> is used for validation.
+	  <div style="text-align:center;width:100%;">
+	    The definition file <strong>{{=DEF_FILE_NAME}}</strong> is used for validation.
+	  </div>
 	  {{pass}}
 
 	  {{else:}}
-	  <p>No validation errors detected.</p>
+	  <div style="text-align:center;width:100%;">
+	    No validation errors detected.
+	  </div>
 	  {{pass}}
 	</section>
 
@@ -101,3 +150,8 @@
     </div>
   </div>
 </main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+{{end}}

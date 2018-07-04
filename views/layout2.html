@@ -39,6 +39,7 @@
 	  <li class="nav-item">
             <a class="nav-link" href="https://www.sbtab.net/static/specification.html">Specification</a>
 	  </li>
+	  {{block dynamic_nav}}
 	  <li class="nav-item">
             <a class="nav-link" href="https://www.sbtab.net/default/validator.html">Validator</a>
 	  </li>
@@ -48,6 +49,7 @@
 	  <li class="nav-item">
             <a class="nav-link" href="https://www.sbtab.net/default/def_files.html">Customize SBtab</a>
 	  </li>
+	  {{end}}
 	  <li class="nav-item">
             <a class="nav-link" href="https://www.sbtab.net/static/code.html">Code</a>
 	  </li>
@@ -67,10 +69,11 @@
       </div>
     </nav>
 
+    <div style="text-align:center;">
     {{block center}}
-    {{include}}
+    <!--{{include}}-->
     {{end}}
-
+    </div>
   </body>
 
 
@@ -89,7 +92,9 @@
   <script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>
   <script type="text/javascript">
     function help_click(div, txt) { if (div.innerHTML == "") div.innerHTML = "<br/>   " + txt; else div.innerHTML = ""; }
-  </script> 
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 </html>
 
