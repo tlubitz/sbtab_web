@@ -155,8 +155,7 @@ def validator():
     # validate
     if request.vars.validate_button:
         sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
-        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)],
-                                                       session.definition_file)
+        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
         output = TableValidClass.return_output()
 
     # erase
@@ -165,7 +164,11 @@ def validator():
         del session.sbtabs[int(request.vars.erase_button)]
         del session.sbtab_filenames[int(request.vars.erase_button)]
         del session.types[int(request.vars.erase_button)]
-        del session.sbtab_docnames[int(request.vars.erase_button)]
+        doc_name = session.name2doc[flname]
+        # this IF is important: you must only delete the document from the list
+        # IF there are no more files attached to it
+        if list(session.name2doc.values()).count(doc_name) == 1:
+            session.sbtab_docnames.remove(doc_name)
         del session.name2doc[flname]
         session.warnings_val = []
         redirect(URL(''))
@@ -214,7 +217,7 @@ def converter():
     if lform.process(formname='form_one').accepted:
         response.flash = 'form accepted'
 
-        # initialise required variables and files XXX
+        # initialise required variables and files
         session.warnings_con = []
 
         if not session.definition_file:
@@ -335,7 +338,7 @@ def converter():
         else:
             sbml_version = '31'
             c2sbml_button = request.vars.c2sbml_button31
-            
+
         session.warnings_con = []
 
         # get SBtab and add to SBtab document
@@ -345,37 +348,38 @@ def converter():
         except:
             session.warnings_con = ['The SBtab %s could not be added to the document.' % sbtab.filename]
             redirect(URL(''))
-
+            
         # convert SBtab document to SBML and add details to session
-        #try:
-        ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
-        (sbml,
-         session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
-        filename_new = sbtab.filename[:-4] + '.xml'
-        # if the sbml build up crashed:
-        if not sbml:
-            session.warnings_con.append('The SBtab file %s could not be c'\
-                                        'onverted to SBML. Please check file'\
-                                        'validity.' % sbtab.filename)
-            redirect(URL(''))
+        try:
+            ConvSBtabClass = sbtab2sbml.SBtabDocument(sbtab_doc)
+            (sbml,
+             session.warnings_con) = ConvSBtabClass.convert_to_sbml(sbml_version)
 
-        if 'sbmls' not in session:
-            session.sbmls = [sbml]
-            session.sbml_filenames = [filename_new]
-        else:
-            if not filename_new in session.sbml_filenames:
-                session.sbmls.append(sbml)
-                session.sbml_filenames.append(filename_new)
-            else:
-                session.warnings_con.append('A file with the name %s has alre'\
-                                            'ady been uploaded. Please rename'\
-                                            ' your SBtab file/s before SBML c'\
-                                            'reation.' % filename_new)
+            filename_new = sbtab.filename[:-4] + '.xml'
+            # if the sbml build up crashed:
+            if not sbml:
+                session.warnings_con.append('The SBtab file %s could not be c'\
+                                            'onverted to SBML. Please check file'\
+                                            'validity.' % sbtab.filename)
                 redirect(URL(''))
-        #except:
-        #    session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
-        #                                'ot successful.' % sbtab.filename)
-        #    redirect(URL(''))
+
+            if 'sbmls' not in session:
+                session.sbmls = [sbml]
+                session.sbml_filenames = [filename_new]
+            else:
+                if not filename_new in session.sbml_filenames:
+                    session.sbmls.append(sbml)
+                    session.sbml_filenames.append(filename_new)
+                else:
+                    session.warnings_con.append('A file with the name %s has alre'\
+                                                'ady been uploaded. Please rename'\
+                                                ' your SBtab file/s before SBML c'\
+                                                'reation.' % filename_new)
+            redirect(URL(''))
+        except:
+            session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
+                                        'ot successful.' % sbtab.filename)
+            redirect(URL(''))
 
     # convert multiple sbtabs to sbml
     if request.vars.convert_all_button24 or request.vars.convert_all_button31:
@@ -484,11 +488,12 @@ def converter():
             reader = libsbml.SBMLReader()
             sbml_model = reader.readSBMLFromString(session.sbmls[int(request.vars.c2sbtab_button)])
             filename = session.sbml_filenames[int(request.vars.c2sbtab_button)]
-
             # convert SBML to SBtab Document
             ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
             (sbtab_doc, session.warnings_con) = ConvSBMLClass.convert_to_sbtab()
-            
+            if sbtab_doc.sbtabs == []:
+                session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
+                redirect(URL(''))
             # append generated SBtabs to session variables
             for sbtab in sbtab_doc.sbtabs:
                 if 'sbtabs' not in session:
@@ -512,6 +517,11 @@ def converter():
     # erase single SBtab
     if request.vars.erase_sbtab_button:
         del session.sbtabs[int(request.vars.erase_sbtab_button)]
+        # this IF is important: you must only delete the document from the list
+        # IF there are no more files attached to it
+        doc_name = session.name2doc[session.sbtab_filenames[int(request.vars.erase_sbtab_button)]]
+        if list(session.name2doc.values()).count(doc_name) == 1:
+            session.sbtab_docnames.remove(doc_name)
         del session.name2doc[session.sbtab_filenames[int(request.vars.erase_sbtab_button)]]
         del session.sbtab_filenames[int(request.vars.erase_sbtab_button)]
         del session.types[int(request.vars.erase_sbtab_button)]
@@ -540,20 +550,24 @@ def def_files():
                                                      error_message='Max upload size: 10MB')))
     session.new_def = False
 
+    if not session.definition_file:
+        try:
+            def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+            def_file = def_file_open.read()
+            definition_name = 'definitions.tsv'
+            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            session.definition_file = sbtab_def
+            session.definition_file_def = sbtab_def
+            session.definition_file_name = sbtab_def.filename
+            session.definition_file_name_def = sbtab_def.filename
+        except:
+            session.warnings_val.append('There was an error reading the definition file.')
+
     #update session lists
     if dform.process().accepted:
+
         response.flash = 'form accepted'
         session.warnings_def = []
-        if not session.definition_file:
-            try:
-                def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
-                def_file = def_file_open.read()
-                definition_name = 'definitions.tsv'
-                sbtab_def = SBtab.SBtabTable(def_file, definition_name)
-                session.definition_file = sbtab_def
-                session.definition_file_name = sbtab_def.filename
-            except:
-                session.warnings_val.append('There was an error reading the definition file.')
         
         try: sbtab_def_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
@@ -572,8 +586,9 @@ def def_files():
 
     #pushed erase button
     if request.vars.erase_def_button:
-        del session.definition_file[int(request.vars.erase_def_button)]
-        del session.definition_file_name[int(request.vars.erase_def_button)]
+        # set def file back to default
+        session.definition_file = session.definition_file_def
+        session.definition_file_name = session.definition_file_name_def
         session.new_def = False
         redirect(URL(''))
 

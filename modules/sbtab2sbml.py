@@ -88,7 +88,8 @@ class SBtabDocument:
             return (False, self.warnings)
 
         # 2. build compounds
-        self.compound_sbtab()
+        #self.compound_sbtab()
+
         try:
             if 'Compound' in self.sbtab_doc.types:
                 self.compound_sbtab()
@@ -96,7 +97,6 @@ class SBtabDocument:
             self.warnings.append('Warning: The provided compounds could not b'\
                                  'e initialised properly. Please check for va'\
                                  'lid compound information.')
-
         # 3. build reactions
         try:
             if 'Reaction' in self.sbtab_doc.types:
@@ -118,7 +118,6 @@ class SBtabDocument:
 
         # write generated information to SBML model
         new_sbml_model = libsbml.writeSBMLToString(self.new_document)
-
         return (new_sbml_model, self.warnings)
 
     def return_warnings(self):
