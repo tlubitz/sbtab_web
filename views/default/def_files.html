@@ -27,12 +27,12 @@
 </header>
 
 <main>
-  <div class="container-fluid bg-3 text-center">
+  <div class="container-fluid bg-3">
     <div class="row">
       <div class="col-sm-2"></div>
       <div class="col-sm-8">
 
-	<section>
+	<section style="text-align:left;">
 	  {{=UPL_FORM}}
 
 	  {{if DEF_NAME:}}
@@ -55,8 +55,10 @@
 	  By editing this table, you can customize the SBtab format and define new table types. Note
 	  that, when using a new definition table, the predefined definition table will be completely
 	  overridden, so any tables and columns to be used (also the predefined ones) must be listed
-	  in the new table. Currently the default definition SBtab is loaded for your session:
-	  <a href="show_sbtab_def/{{=str(0)}}" target="_new"> {{=DEF_NAME}} </a>
+	  in the new table.
+	  <p style="padding-top:10px;">Currently the default definition SBtab is loaded for your session:
+	    <a href="show_sbtab_def/{{=str(0)}}" target="_new"> {{=DEF_NAME}} </a>
+	  </p>
 	  {{pass}}
 
 

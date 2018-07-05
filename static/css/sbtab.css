@@ -36,7 +36,7 @@ var { font-style:normal; color:#000000; }
 
 blockquote,cite { font-style:italic; }
 
-a {text-decoration:none; color:#127ba3; }
+a {text-decoration:none; color:#ff4400; }
 
 ins { color:#009900; font-weight:bold; text-decoration:none; }
 
@@ -83,7 +83,7 @@ mydownscale { font-size: 0.7em;}
     font-size: 20px;
     line-height:2;
     padding-bottom:15px;
-    color: #127ba3;
+    color: #ff4400;
 }
 
 article > h2 {
@@ -129,8 +129,8 @@ article {
 
 .btn {
   color: #fff;
-  background-color: #158CBA;
-  border-color: #158CBA;
+  background-color: #120a8f;
+  border-color: #120a8f;
 }
 
 .card {
