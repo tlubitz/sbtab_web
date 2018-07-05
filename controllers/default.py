@@ -488,15 +488,14 @@ def converter():
             reader = libsbml.SBMLReader()
             sbml_model = reader.readSBMLFromString(session.sbmls[int(request.vars.c2sbtab_button)])
             filename = session.sbml_filenames[int(request.vars.c2sbtab_button)]
-            print('1')
             # convert SBML to SBtab Document
             ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
             (sbtab_doc, session.warnings_con) = ConvSBMLClass.convert_to_sbtab()
-            print('2')
-            print(sbtab_doc.sbtabs)
+            if sbtab_doc.sbtabs == []:
+                session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
+                redirect(URL(''))
             # append generated SBtabs to session variables
             for sbtab in sbtab_doc.sbtabs:
-                print(sbtab)
                 if 'sbtabs' not in session:
                     session.sbtabs = [sbtab]
                     session.sbtab_filenames = [sbtab.filename]
@@ -512,7 +511,6 @@ def converter():
                         session.sbtab_docnames.append(sbtab_doc.name)
                         session.types.append(sbtab.table_type)
         except:
-            print('crashed')
             session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
             redirect(URL(''))
 
@@ -522,13 +520,8 @@ def converter():
         # this IF is important: you must only delete the document from the list
         # IF there are no more files attached to it
         doc_name = session.name2doc[session.sbtab_filenames[int(request.vars.erase_sbtab_button)]]
-        print(doc_name)
-        print(session.sbtab_docnames)
         if list(session.name2doc.values()).count(doc_name) == 1:
-            print('duin')
             session.sbtab_docnames.remove(doc_name)
-            print('dun')
-        print(session.sbtab_docnames)
         del session.name2doc[session.sbtab_filenames[int(request.vars.erase_sbtab_button)]]
         del session.sbtab_filenames[int(request.vars.erase_sbtab_button)]
         del session.types[int(request.vars.erase_sbtab_button)]
