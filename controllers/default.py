@@ -609,7 +609,7 @@ def def_files():
     if request.vars.erase_def_button:
         # set def file back to default
         session.definition_file = session.definition_file_def
-        session.definition_file_name = True
+        session.definition_file_name = session.definition_file_name_def
         session.new_def = False
         redirect(URL(''))
 
