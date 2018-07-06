@@ -6,13 +6,31 @@
 
 {{block dynamic_nav}}
 <li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net">Home</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/introduction.html">Getting started</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/specification.html">Specification</a>
+</li>
+<li class="nav-item">
   <a class="nav-link" href="https://www.sbtab.net/sbtab/default/validator.html">Validator</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="https://www.sbtab.net/sbtab/default/converter.html">SBML</a>
 </li>
 <li class="nav-item active">
-  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/def_files.html">Customize SBtab</a>
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/def_files.html">Customize SBtab <span class="sr-only">(current)</span></a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/code.html">Code</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/troubles.html">Troubleshooting</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/team.html">Contact</a>
 </li>
 {{end}}
 
@@ -60,10 +78,23 @@
 	    <a href="show_sbtab_def/{{=str(0)}}" target="_new"> {{=DEF_NAME}} </a>
 	  </p>
 	  {{pass}}
-
-
 	  {{pass}}
 	</section>
+
+
+	<section>
+	  {{if WARNINGS_DEF:}}
+	    <strong>Logfile of warnings for conversion:</strong>
+	    {{if len(WARNINGS_DEF)>1:}}
+              {{for f in WARNINGS_DEF:}} 
+	        <font color="#FF0000">&bull; {{=f}}</font>
+	      {{pass}}
+	    {{else:}}
+	      <font color="#FF0000">&bull; {{=WARNINGS_DEF[0]}}</font>
+	    {{pass}}
+	  {{pass}}
+	</section>
+	
       </div>
       <div class="col-sm-2"></div>
     </div>

@@ -1,22 +1,82 @@
-{{extend 'layout.html'}}
-{{=UPL_FORM}}
+{{extend 'layout2.html'}}
 
+{{block title}}
+<title>SBtab - Standardised data tables for Systems Biology</title>
+{{end}}
 
+{{block dynamic_nav}}
+<li class="nav-item active">
+  <a class="nav-link" href="https://www.sbtab.net">Home <span class="sr-only">(current)</span></a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/introduction.html">Getting started</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/specification.html">Specification</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/validator.html">Validator</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/converter.html">SBML</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/def_files.html">Customize SBtab</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/code.html">Code</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/troubles.html">Troubleshooting</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/team.html">Contact</a>
+</li>
+{{end}}
 
+{{block center}}
+<header>
+  <div class="container-fluid bg-1 text-center">
+    <div class="jumbotron" align="center">
+      <img class="sb" src="/sbtab/static/images/sbtab-logo.png" alt="SBtab Logo">
+      <h1><small>Conventions for structured data tables in Systems Biology</small></h1>
+    </div>
+  </div>
+</header>
 
+<main>
+  <div class="container-fluid bg-3 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+	
+	<p> SBtab is a set of conventions for data tables,
+	  facilitating data exchange in Systems Biology. Its aim is to simplify
+	  data processing by a standardised syntax and names. This includes,
+	  among other things, prescriptions for column names, semantic
+	  annotations, and physical units.</p>
+	
+	<p>
+	  <a class="scale" href="introduction.html">Getting started with SBtab</a>
+	</p>
+	<p>
+	  <a class="scale"  href="specification.html">SBtab specification</a>
+	</p>
+	<p>
+	  <a class="scale"  href="validator.html">Online SBtab validation</a>
+	</p>
+	<p>
+	  <a class="scale"  href="converter">Online SBML conversion</a>
+	</p>
+	<p>
+	  <a class="scale"  href="specification.html">Citing SBtab</a>
+	</p>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+</main>
 
-{{if NAME_LIST:}}
-<table>
-{{for pos,f in enumerate(NAME_LIST):}} 
-  <tr> 
-    <td>{{=f}}</td> 
-    <td> <form> <button type="submit" value="{{=pos}}" name="validate_button">Validate</button> </form> </td>
-    <td> <form> <button type="submit" value="{{=pos}}" name="erase_button">Erase</button> </form> </td>
-  </tr>
-{{pass}}
-</table>
-{{else:}}
-No SBtabs uploaded
-{{pass}}
-
-{{=V_OUTPUT}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{{end}}

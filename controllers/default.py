@@ -15,9 +15,26 @@ import libsbml
 import makehtml
 import misc
 import SBtab
+import os
+import copy
 
 def index():
-    redirect(URL('../../static/index.html'))
+    return dict()
+
+def introduction():
+    return dict()
+
+def specification():
+    return dict()
+
+def code():
+    return dict()
+
+def troubles():
+    return dict()
+
+def team():
+    return dict()
 
 def clearsession():
     session.sbtabs = []
@@ -40,7 +57,7 @@ def clearsession():
     session.warnings_con = []
     session.warnings_def = []
     
-    redirect(URL('../../static/index.html'))
+    redirect(URL('index.html'))
 
 def validator():
     """
@@ -76,7 +93,9 @@ def validator():
         # load the definition file which is required for validation
         if not session.definition_file:
             try:
-                def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
+                def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+                def_file_open = open(def_path)
+                #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
                 def_file = def_file_open.read()
                 definition_name = 'definitions.tsv'
                 sbtab_def = SBtab.SBtabTable(def_file, definition_name)
@@ -214,7 +233,9 @@ def converter():
 
         if not session.definition_file:
             try:
-                def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
+                def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+                def_file_open = open(def_path)
+                #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv') # deprecated?
                 def_file = def_file_open.read()
                 definition_name = 'definitions.tsv'
                 sbtab_def = SBtab.SBtabTable(def_file, definition_name)
@@ -461,8 +482,9 @@ def converter():
                 del session.sbtab_filenames[i]
                 del session.types[i]
             session.warnings_con = []
+            print(session.sbtab_docnames)
             del session.sbtab_docnames[int(request.vars.remove_all_button)]
-            redirect(URL(''))
+            #redirect(URL(''))
         except: redirect(URL(''))
 
     # erase single SBML
@@ -491,7 +513,8 @@ def converter():
                 if 'sbtabs' not in session:
                     session.sbtabs = [sbtab]
                     session.sbtab_filenames = [sbtab.filename]
-                    session.sbtab_docnames = [sbtab_doc.name]
+                    if sbtab_doc.name not in session.sbtab_docnames:
+                        session.sbtab_docnames = [sbtab_doc.name]
                     session.types = [sbtab.table_type]
                     session.name2doc = {}
                     session.name2doc[sbtab.filename] = sbtab_doc.name
@@ -500,7 +523,8 @@ def converter():
                         session.sbtabs.append(sbtab)
                         session.sbtab_filenames.append(sbtab.filename)
                         session.name2doc[sbtab.filename] = sbtab_doc.name
-                        session.sbtab_docnames.append(sbtab_doc.name)
+                        if sbtab_doc.name not in session.sbtab_docnames:
+                            session.sbtab_docnames.append(sbtab_doc.name)
                         session.types.append(sbtab.table_type)
         except:
             session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
@@ -540,26 +564,27 @@ def def_files():
                                   label='Upload new definition file (.csv, .tsv, .xls)',
                                   requires=IS_LENGTH(10485760, 1,
                                                      error_message='Max upload size: 10MB')))
-    session.new_def = False
 
+    session.warnings_def = []
     if not session.definition_file:
         try:
-            def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
+            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            def_file_open = open(def_path)
+            #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
             def_file = def_file_open.read()
             definition_name = 'definitions.tsv'
             sbtab_def = SBtab.SBtabTable(def_file, definition_name)
             session.definition_file = sbtab_def
-            session.definition_file_def = sbtab_def
+            session.definition_file_def = copy.deepcopy(sbtab_def)
             session.definition_file_name = sbtab_def.filename
-            session.definition_file_name_def = sbtab_def.filename
+            session.definition_file_name_def = copy.deepcopy(sbtab_def.filename)
+            session.new_def = False
         except:
-            session.warnings_val.append('There was an error reading the definition file.')
+            session.warnings_def.append('There was an error reading the definition file.')
 
-    #update session lists
+    #update session lists 
     if dform.process().accepted:
-
         response.flash = 'form accepted'
-        session.warnings_def = []
         
         try: sbtab_def_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
@@ -570,8 +595,12 @@ def def_files():
         except:
             session.warnings_def.append('The file could not be used as a valid SBtab Table.')
             redirect(URL(''))
+
+        session.definition_file_def = copy.deepcopy(session.definition_file)
+        session.definition_file_name_def = copy.deepcopy(session.definition_file_name)
+           
         session.definition_file = sbtab_def
-        session.definition_file_name = filename
+        session.definition_file_name = filename        
         session.new_def = True
     elif dform.errors:
         response.flash = 'form has errors'
@@ -580,18 +609,13 @@ def def_files():
     if request.vars.erase_def_button:
         # set def file back to default
         session.definition_file = session.definition_file_def
-        session.definition_file_name = session.definition_file_name_def
+        session.definition_file_name = True
         session.new_def = False
         redirect(URL(''))
 
     return dict(UPL_FORM=dform, DEF_FILE=session.definition_file,
-                DEF_NAME=session.definition_file_name, NEW=session.new_def)
-
-def troubles():
-    '''
-    some static troubleshooting
-    '''
-    redirect(URL('../static/troubles.html'))
+                DEF_NAME=session.definition_file_name, NEW=session.new_def,
+                WARNINGS_DEF=session.warnings_def)
 
 def downloader_sbtab():
         response.headers['Content-Type'] = 'text/csv'

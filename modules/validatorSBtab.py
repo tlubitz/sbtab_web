@@ -97,8 +97,9 @@ class ValidateTable:
                 sys.exit() 
         else:
             try:
-                d = os.path.dirname(os.path.abspath(__file__)) + '/files/default_'\
+                d = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_'\
                     'files/definitions.tsv'
+                print(d)
                 def_file = open(d, 'r')
                 def_table = def_file.read()
                 sbtab_def = SBtab.SBtabTable(def_table, d)
