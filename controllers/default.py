@@ -36,6 +36,18 @@ def troubles():
 def team():
     return dict()
 
+def faq():
+    return dict()
+
+def files():
+    return dict()
+
+def sbtab_models():
+    return dict()
+
+def sbtab_compliance():
+    return dict()
+
 def clearsession():
     session.sbtabs = []
     session.sbtab_filenames = []
