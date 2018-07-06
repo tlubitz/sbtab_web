@@ -8,19 +8,12 @@
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - call exposes all registered services (none by default)
 #########################################################################
-import tablib
-import tablibIO
 import validatorSBtab
 import sbml2sbtab
 import sbtab2sbml
 import libsbml
-import random
-import string
-import splitTabs
 import makehtml
 import misc
-import tablib.formats._xlsx as xlrd
-import xlrd
 import SBtab
 
 def index():
