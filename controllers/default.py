@@ -76,7 +76,7 @@ def validator():
         # load the definition file which is required for validation
         if not session.definition_file:
             try:
-                def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+                def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
                 def_file = def_file_open.read()
                 definition_name = 'definitions.tsv'
                 sbtab_def = SBtab.SBtabTable(def_file, definition_name)
@@ -199,7 +199,6 @@ def converter():
     session.sbmlid2label = {'24':'_SBML_L2V4',
                             '31':'_SBML_L3V1'}
 
-    import SBtab  # why??
     # #########################################################################
     # form for SBtab files
     lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
@@ -215,7 +214,7 @@ def converter():
 
         if not session.definition_file:
             try:
-                def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+                def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
                 def_file = def_file_open.read()
                 definition_name = 'definitions.tsv'
                 sbtab_def = SBtab.SBtabTable(def_file, definition_name)
@@ -545,7 +544,7 @@ def def_files():
 
     if not session.definition_file:
         try:
-            def_file_open = open('./applications/sbtab_web/static/files/default_files/definitions.tsv')
+            def_file_open = open('./applications/sbtab/static/files/default_files/definitions.tsv')
             def_file = def_file_open.read()
             definition_name = 'definitions.tsv'
             sbtab_def = SBtab.SBtabTable(def_file, definition_name)
