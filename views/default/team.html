@@ -1,0 +1,79 @@
+{{extend 'layout2.html'}}
+
+{{block title}}
+<title>SBtab - Team</title>
+{{end}}
+
+{{block dynamic_nav}}
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net">Home</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/introduction.html">Getting started</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/specification.html">Specification</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/validator.html">Validator</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/converter.html">SBML</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/def_files.html">Customize SBtab</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/code.html">Code</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/troubles.html">Troubleshooting</a>
+</li>
+<li class="nav-item active">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/team.html">Contact <span class="sr-only">(current)</span></a>
+</li>
+{{end}}
+
+{{block center}}
+<header>
+  <div class="container-fluid bg-1 text-center">
+    <div class="jumbotron" align="center">
+      <h1><small>The SBtab Team</small></h1>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container-fluid bg-3 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-8 textblock">
+	<ul class="list-group" style="padding-bottom:50px">
+	  <li class="list-group-item">
+	    <a href="https://www.metabolic-economics.de/liebermeister/index.html">Wolfram Liebermeister</a> (INRA Jouy-en-Josas)	
+	  </li>
+	  <li class="list-group-item">
+	    <a href="mailto:timo.lubitz@gmail.com">Timo Lubitz</a> (Humboldt University Berlin)
+	  </li>
+	  <li class="list-group-item">
+	    Elad Noor (ETH Zürich)
+	  </li>
+	  <li class="list-group-item">
+	    Frank T. Bergmann (Heidelberg University)
+	  </li>
+	</ul>
+	
+	<p style="width:100% !important;text-align:left;">We are grateful to our colleagues who contributed ideas to the SBtab
+	  format: <br>Jens Hahn, Dagmar Waltemath, Hans-Michael Kaltenbach, Dirk Wiesenthal,
+	  Jannis Uhlendorf, Anne Goelzer, Jörg Büscher, Avi Flamholz,
+	  Edda Klipp, Phillipp Schmidt, and Matthias König.
+	</p>
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{{end}}
