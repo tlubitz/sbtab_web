@@ -83,7 +83,7 @@ def validator():
     response.subtitle = T('Online Validator')
 
     lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
-                                  label='Upload SBtab file (.csv, .tsv, .xls)',
+                                  label='Upload SBtab file (.csv, .tsv, .xlsx)',
                                   requires=IS_LENGTH(10485760, 1,
                                                      error_message='Max upload size: 10MB')))
     sbtab_val = None
@@ -124,15 +124,16 @@ def validator():
             redirect(URL(''))
 
         filename = request.vars.File.filename
-        if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xls'):
-            session.warnings_val.append('The file does not have a correct file format. Please use csv/tsv/xls only.')
+        if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xlsx'):
+            session.warnings_val.append('The file does not have a correct file format. Please use csv/tsv/xlsx only.')
             redirect(URL(''))
 
-        # convert from xls to csv if required
-        if filename.endswith('.xls'):
-            try: sbtab_file = misc.xls2csv(sbtab_file, filename)
+        # convert from xlsx to csv if required
+        if filename.endswith('.xlsx'):
+            try:
+                sbtab_file = misc.xlsx_to_tsv(sbtab_file)
             except:
-                session.warnings_val.append('The xls file could not be converted to SBtab. Please ensure file format validity.')
+                session.warnings_val.append('The xlsx file could not be converted to SBtab. Please ensure file format validity.')
                 redirect(URL(''))
 
         # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
@@ -233,7 +234,7 @@ def converter():
     # #########################################################################
     # form for SBtab files
     lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
-                                  label='Upload SBtab file to convert (.csv, .tsv, .xls)',
+                                  label='Upload SBtab file to convert (.csv, .tsv, .xlsx)',
                                   requires=IS_LENGTH(10485760, 1,
                                                      error_message='Max upload size: 10MB')))
     
@@ -271,15 +272,15 @@ def converter():
             redirect(URL(''))
         
         filename = request.vars.File.filename
-        if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xls'):
-            session.warnings_con.append('The file does not have a correct file format. Please use csv/tsv/xls only.')
+        if not filename.endswith('.tsv') and not filename.endswith('.csv') and not filename.endswith('.xlsx'):
+            session.warnings_con.append('The file does not have a correct file format. Please use csv/tsv/xlsx only.')
             redirect(URL(''))
 
-        # convert from xls to csv if required
-        if filename.endswith('.xls'):
+        # convert from xlsx to csv if required
+        if filename.endswith('.xlsx'):
             try: sbtab_file = misc.xls2csv(sbtab_file, filename)
             except:
-                session.warnings_con.append('The xls file could not be converted to SBtab. Please ensure file format validity.')
+                session.warnings_con.append('The xlsx file could not be converted to SBtab. Please ensure file format validity.')
                 redirect(URL(''))
 
         # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
@@ -466,7 +467,7 @@ def converter():
     if request.vars.dl_sbtab_button:
         downloader_sbtab()
 
-    # download sbtab.xls
+    # download sbtab.xlsx
     if request.vars.dl_xls_sbtab_button:
         downloader_sbtab_xls()
 
@@ -573,7 +574,7 @@ def def_files():
     response.subtitle = T('Upload your own definition files')
 
     dform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
-                                  label='Upload new definition file (.csv, .tsv, .xls)',
+                                  label='Upload new definition file (.csv, .tsv, .xlsx)',
                                   requires=IS_LENGTH(10485760, 1,
                                                      error_message='Max upload size: 10MB')))
 
