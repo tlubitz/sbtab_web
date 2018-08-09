@@ -130,6 +130,7 @@ def validator():
 
         # convert from xlsx to csv if required
         if filename.endswith('.xlsx'):
+            sbtab_file = request.vars.File.value
             try:
                 sbtab_file = misc.xlsx_to_tsv(sbtab_file)
             except:
@@ -137,7 +138,9 @@ def validator():
                 redirect(URL(''))
 
         # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
-        try: sbtab_amount = misc.count_tabs(sbtab_file)
+        
+        try:
+            sbtab_amount = misc.count_tabs(sbtab_file)
         except:
             session.warnings_val.append('The SBtab %s could not be read properly.' % sbtab.filename)
             redirect(URL(''))
@@ -214,6 +217,7 @@ def validator():
                 del session.types[i]
                 del session.sbtab_docnames[i]
                 session.warnings_val = []
+            redirect(URL(''))
         except:
             session.warnings_val.append('The document could not be removed. Please reload session.')
             redirect(URL(''))
@@ -278,7 +282,7 @@ def converter():
 
         # convert from xlsx to csv if required
         if filename.endswith('.xlsx'):
-            try: sbtab_file = misc.xls2csv(sbtab_file, filename)
+            try: sbtab_file = misc.xlsx_to_tsv(sbtab_file)
             except:
                 session.warnings_con.append('The xlsx file could not be converted to SBtab. Please ensure file format validity.')
                 redirect(URL(''))
@@ -495,7 +499,6 @@ def converter():
                 del session.sbtab_filenames[i]
                 del session.types[i]
             session.warnings_con = []
-            print(session.sbtab_docnames)
             del session.sbtab_docnames[int(request.vars.remove_all_button)]
             #redirect(URL(''))
         except: redirect(URL(''))
