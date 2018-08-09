@@ -182,9 +182,13 @@ def validator():
     # buttons
     # validate
     if request.vars.validate_button:
-        sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
-        TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
-        output = TableValidClass.return_output()
+        try:
+            sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
+            TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
+            output = TableValidClass.return_output()
+        except:
+            session.warnings_val.append('The file could not be validated. It seems to be broken.')
+            redirect(URL(''))
 
     # erase
     if request.vars.erase_button:
