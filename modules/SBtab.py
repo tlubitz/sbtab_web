@@ -9,14 +9,12 @@ information into Python objects to process and manipulate it.
 See specification for further information.
 '''
 import re
-import copy
-import tablib
+import csv
+from io import StringIO
 import logging
 try:
-    from . import tablibIO
     from . import misc
 except:
-    import tablibIO
     import misc
 
 
@@ -46,49 +44,53 @@ class SBtabTable():
         filename : str
             Filename with extension.
         '''
-        # Needed to be able to adress it from outside of the class for
-        # writing and reading
         self.filename = filename
+        self.table_string = table_string
         
         # validate file extension
         self.validate_extension()
         
         # process string
         self.delimiter = misc.check_delimiter(table_string)
-        table_list = self.cut_table_string(table_string)
-        
-        # check if ascii stuff is violated
-        try: (self.table, self.str_tab) = self.check_ascii(table_list)
-        except: raise SBtabError('This is not a valid SBtab file. Try to chec'\
-                                 'k your file with the SBtab validator or rea'\
-                                 'd the SBtab specification.')
+        self.table = self.cut_table_string(table_string)
 
-        # Delete tablib header to avoid complications
-        if self.table.headers: self.table.headers = None
-
-        # Create all necessary variables
-        self.tables_without_name = []
+        # Initialise table
         self.initialize_table()
 
-        self.sbtab_dataset = []
-
-    def validate_extension(self):
+    def validate_extension(self, test=None):
         '''
         Checks the extension of the file for invalid formats.
         '''
         valid_extensions = ['tsv', 'csv', 'xls']
-        if self.filename[-3:] not in valid_extensions:
+        if test: filename = test
+        else: filename = self.filename
+
+        if filename[-3:] not in valid_extensions:
             raise SBtabError('The file extension is not valid for an SBtab file.')
+
+        return True
         
-    def cut_table_string(self, table_string):
+    def cut_table_string(self, table_string, delimiter_test=None):
         '''
         the SBtab is initially given as one long string;
         cut down string into list to harvest content
         '''
+        if delimiter_test: delimiter = delimiter_test
+        else: delimiter = self.delimiter
+
         table_list = []
         for row in table_string.split('\n'):
-            if row.replace(self.delimiter, '') != '':
-                table_list.append(row.split(self.delimiter))
+            if row.replace(delimiter, '') != '':
+                if not row.startswith('"!') and not row.startswith('!'):
+                    if '"' in row:
+                        if delimiter == ',' or delimiter == ';':
+                            c_row = row.split('"')
+                            no_quote_row = c_row[0][:-1].split(delimiter) + ['"'+c_row[1]+'"'] + c_row[2][1:].split(delimiter)
+                            table_list.append(no_quote_row)
+                        else: table_list.append(row.split(delimiter))
+                    else: table_list.append(row.split(delimiter))
+                else:
+                    table_list.append(row.split(delimiter))
 
         return table_list
 
@@ -122,37 +124,8 @@ class SBtabTable():
         # Read the columns of the table
         (self.columns, self.columns_dict) = self.get_columns()
 
-        self.delimiter = misc.check_delimiter('\n'.join(self.str_tab))
-
         # Read data rows
         self.value_rows = self.get_rows(self.table_type)
-        
-    def check_ascii(self, table):
-        '''
-        Checks for ASCII violations, so that the parser will not crash
-        if these occur.
-
-        Parameters
-        ----------
-        table : list of str
-            SBtab table as a list of row strings.
-        '''
-        new_table = []
-
-        for row in table:
-            new_row = []
-            for entry in row:
-                try:
-                    new_row.append(str(entry).strip())
-                except:
-                    new_row.append('''Ascii violation error!
-                                      Please check input file!''')
-            new_table.append('\t'.join(new_row))
-
-        tablibtable = tablibIO.importSetNew('\n'.join(new_table),
-                                            self.filename + '.csv')
-        
-        return tablibtable, new_table
 
     def _get_doc_row(self):
         '''
@@ -226,14 +199,10 @@ class SBtabTable():
         try: table_type = self.get_custom_table_information('TableType')
         except: raise SBtabError('The TableType of the SBtab is not defined!')
 
-        # Save table name, otherwise give name with number of unnamed tables
+        # Save table name, otherwise create name
         try: table_name = self.get_custom_table_information('TableName')
         except:
-            self.tables_without_name.append(table_type)
-            for table_no_name in self.tables_without_name:
-                if table_type == table_no_name:
-                    no_name_counter = no_name_counter + 1
-            table_name = table_type.capitalize() + '_' + str(no_name_counter)
+            table_name = table_type.capitalize() + '_unnamed'
             self.header_row += " TableName='" + table_name + "'"
 
         # Save table document, otherwise return None
@@ -304,13 +273,10 @@ class SBtabTable():
         for row in self.table:
             if str(row[0]).startswith('!'):
                 continue
-            for i, entry in enumerate(row):
-                if str(entry).startswith('%'):
-                    self.comments.append(list(row))
-                    break
-                else:
-                    if len(row) == i + 1:
-                        value_rows.append(list(row))
+            elif str(row[0]).startswith('%'):
+                self.comments.append(list(row))
+            else:
+                value_rows.append(list(row)[:len(self.columns)])
 
         return value_rows
 
@@ -560,7 +526,7 @@ class SBtabTable():
         self.value_rows = trans_value_rows
 
         return True
-
+    
     def to_data_frame(self):
         '''
         Exports SBtab table object as pandas dataframe
@@ -580,14 +546,24 @@ class SBtabTable():
     @staticmethod
     def from_data_frame(df, document_name, table_type, table_name,
                         document, unit, sbtab_version='1.0'):
-        table = tablib.Dataset()
-        header = "!!SBtab DocumentName='%s' TableType='%s' TableName='%s' Document='%s' Unit='%s' SBtabVersion='%s'" % \
-            (document_name, table_type, table_name, document, unit, sbtab_version)
-        table.rpush([header] + [''] * (df.shape[1]-1))
-        table.rpush(list(map(lambda s: '!' + s, df.columns)))
-        for i, row in df.iterrows():
-            table.append(row.tolist())
-        return SBtabTable(table, 'unnamed_sbtab.tsv')
+        table_string = StringIO()
+        csv_writer = csv.writer(table_string, delimiter=',')
+
+        header = [('DocumentName', document_name),
+                  ('TableType', table_type),
+                  ('TableName', table_name),
+                  ('Document', document),
+                  ('Unit', unit),
+                  ('SBtabVersion', sbtab_version)]
+        
+        header_strings = ['!!SBtab'] + list(map(lambda x: "%s='%s'" % x, header))
+        
+        csv_writer.writerow([' '.join(header_strings)] + [''] * (df.shape[1]-1))
+        csv_writer.writerow(map(lambda s: '!' + s, df.columns))
+        csv_writer.writerows([row.tolist() for _, row in df.iterrows()])
+        table_string.flush()
+        
+        return SBtabTable(table_string.getvalue(), 'unnamed_sbtab.tsv')
 
 class SBtabDocument:
     '''
@@ -597,12 +573,13 @@ class SBtabDocument:
         '''
         simple initialisation of SBtabDocument with an optional SBtab Table object
         '''
-        self.sbtabs = []
         self.name = name
+        self.filename = filename
+        self.sbtabs = []
         self.name_to_sbtab = {}
-        self.types = []
         self.type_to_sbtab = {}
         self.doc_row = False
+        self.sbtab_filenames = []
 
         # if there is an initial sbtab given, see if it is
         # a string or an SBtab object
@@ -615,17 +592,20 @@ class SBtabDocument:
         '''
         add an SBtab Table object to the SBtab Document
         '''
-        if sbtab.filename in self.name_to_sbtab:
-            logging.warning('The SBtab could not be added it has the '
-                            'same filename as an existing SBtab:'
+        if sbtab.filename in self.sbtab_filenames:
+            raise SBtabError('The SBtab could not be added it has the '
+                            'same table name as an existing SBtab:'
                             ' %s.' % (sbtab.filename))
             return
+
+        if not self.filename:
+            self.filename = sbtab.filename
           
         valid_type = self.check_type_validity(sbtab.table_type)
         if valid_type:
             self.name_to_sbtab[sbtab.table_name] = sbtab
             self.sbtabs.append(sbtab)
-            self.types.append(sbtab.table_type)
+            self.sbtab_filenames.append(sbtab.filename)
             if sbtab.table_type in self.type_to_sbtab:
                 tabs = self.type_to_sbtab[sbtab.table_type]
                 tabs.append(sbtab)
@@ -633,47 +613,34 @@ class SBtabDocument:
             else:
                 self.type_to_sbtab[sbtab.table_type] = [sbtab]
 
-            # actualise the document declaration row
-            if sbtab.doc_row and not self.doc_row:
-                self.doc_row = sbtab.doc_row
-            elif sbtab.doc_row:
-                self.doc_row = sbtab.doc_row
-                logging.warning('Warning: The current document decla'\
-                                'ration line %s is overridden with d'
-                                'eclaration line '
-                                '%s.' % (self.doc_row,
-                                         sbtab.doc_row))
-            if self.doc_row:
-                self._get_doc_row()
+            self._get_doc_row_attributes()
+            return True
 
-    def _get_doc_row(self):
-        '''
-        read content of the !!!-document declaration row
-        '''
-        # update this as soon as we know the attributes we allow in the
-        # declaration row
-        pass
-            
     def add_sbtab_string(self, sbtab_string, filename):
         '''
         add one or multiple SBtab files as string
         '''
         # set filename if not given
-        if not filename: filename = 'unnamed_sbtab.tsv'
+        if not filename:
+            filename = 'unnamed_sbtab.tsv'
 
         # see if there are more than one SBtabs in the string
         try: sbtab_amount = misc.count_tabs(sbtab_string)
         except:
-            logging.warning('The SBtab file could not be read properly.')
+            raise SBtabError('The SBtab file could not be read properly.')
 
         # if there are more than one SBtabs, cut them in single SBtabs
         try:
             if sbtab_amount > 1:
                 sbtab_strings = misc.split_sbtabs(sbtab_string)
                 for i, sbtab_s in enumerate(sbtab_strings):
-                    # %elad: had to change this because the file extension has 
-                    # to remain .tsv (or csv/xls)
-                    name_single = str(i) + '_' + filename
+                    # here, we find a possible doc row
+                    if sbtab_s.startswith('!!!'):
+                        self.doc_row = sbtab_s
+                        continue
+                    
+                    # then, go on with the cut SBtabs
+                    name_single = str(i) + '_' + self.filename
                     sbtab_single = SBtabTable(sbtab_s, name_single)
                     logging.debug('name = %s, type = %s' % (sbtab_single.table_name, sbtab_single.table_type))
                     self.add_sbtab(sbtab_single)
@@ -681,8 +648,9 @@ class SBtabDocument:
                 sbtab = SBtabTable(sbtab_string, filename)
                 self.add_sbtab(sbtab)
         except Exception as e:
-            logging.warning('The SBtab Table object could not be cre'\
+            raise SBtabError('The SBtab Table object could not be cre'\
                             'ated properly: ' + str(e))
+        return True
             
     def check_type_validity(self, ttype):
         '''
@@ -692,13 +660,65 @@ class SBtabDocument:
         supported_types = ['Compound', 'Enzyme', 'Protein', 'Gene', 'Regulator',
                            'Compartment', 'Reaction', 'ReactionStoichiometry',
                            'Relation', 'Quantity', 'QuantityMatrix',
-                           'Defintion', 'PbConfig']
+                           'Definition', 'PbConfig', 'Relationship',
+                           'QuantityInfo', 'QuantityType', 'Position']
+
         if ttype in supported_types:
             return True
         else:
-            logging.warning('The table type %s is not supported.' % ttype)
-            return False
+            raise SBtabError('The table type %s is not supported.' % ttype)
+
+    def _get_doc_row_attributes(self):
+        '''
+        read content of the !!!-document declaration row
+        '''
+        if not self.doc_row:
+            self.doc_row = '!!!SBtab SBtabVersion="1.0" Document="%s"\n' % self.filename
+        else:
+            # save document name, otherwise raise error
+            # (overrides name given at document initialisation)
+            try: self.name = self.get_custom_doc_information('Document')
+            except: pass
+
+            # save SBtabVersion
+            try: self.version = self.get_custom_doc_information('SBtabVersion')
+            except: self.version = None
             
+            # save date
+            try: self.date = self.get_custom_doc_information('Date')
+            except: self.date = None
+
+            # save document type
+            try: self.doc_type = self.get_custom_doc_information('DocumentType')
+            except: self.doc_type = None
+            
+    def set_version(self, version):
+        '''
+        set SBtabVersion of the document
+        '''
+        try:
+            self.version = version
+        except:
+            raise SBtabError('Version could not be set to %s' % version)
+            
+    def set_date(self, date):
+        '''
+        set date of the document
+        '''
+        try:
+            self.date = date
+        except:
+            raise SBtabError('Date could not be set to %s' % date)
+            
+    def set_doc_type(self, doc_type):
+        '''
+        set doc_type of the document
+        '''
+        try:
+            self.doc_type = doc_type
+        except:
+            raise SBtabError('Doc type could not be set to %s' % doc_type)
+                    
     def remove_sbtab_by_name(self, name):
         '''
         remove SBtab Table from SBtab Document
@@ -707,15 +727,16 @@ class SBtabDocument:
             if sbtab.table_name == name:
                 del self.sbtabs[i]
                 del self.name_to_sbtab[sbtab.table_name]
-                del self.types[i]
+                del self.sbtab_filenames[i]
                 tabs = self.type_to_sbtab[sbtab.table_type]
                 for tab in tabs:
                     if tab.table_name == sbtab.table_name:
                         tabs.remove(tab)
                         break
+        
                 self.type_to_sbtab[sbtab.table_type] = tabs
-
                 break
+        return True
 
     def get_sbtab_by_name(self, name):
         '''
@@ -736,3 +757,62 @@ class SBtabDocument:
         set name of SBtab Document
         '''
         self.name = name
+
+    def write(self):
+        '''
+        write SBtabDocument to hard disk
+        '''
+        if not self.filename.endswith('tsv') and not self.filename.endswith('csv'):
+            if self.delimiter == '\t': self.filename += '.tsv'
+            elif self.delimiter == ',': self.filename += '.csv'
+            elif self.delimiter == ';': self.filename += '.csv'
+            else:
+                raise SBtabError('The file extension is missing and the '\
+                                 'delimiter is not set.')
+
+        try:
+            f = open(self.filename, 'w')
+            f.write(self.doc_row)
+            for sbtab in self.sbtabs:
+                f.write(sbtab.return_table_string() + '\n\n')
+            f.close()
+            return True
+        except:
+            raise SBtabError('The file could not be written.')
+
+        return True
+
+    def get_custom_doc_information(self, attribute_name, test_row=None):
+        '''
+        Retrieves the value of a doc attribute in the doc line
+
+        Parameters
+        ----------
+        attribute_name : str
+           Name of the table attribute.
+        '''
+        if test_row: doc_row = test_row
+        else: doc_row = self.doc_row
+        
+        if re.search("%s='([^']*)'" % attribute_name,
+                     doc_row) is not None:
+            return re.search("%s='([^']*)'" % attribute_name,
+                             doc_row).group(1)
+        else:
+            raise SBtabError('''The %s of the Document is
+                                not defined!''' % attribute_name)
+        
+
+    def set_doc_row(self, new_doc_row):
+        '''
+        set a new doc row
+        '''
+        if not new_doc_row.startswith('!!!SBtab'):
+            raise SBtabError('A doc row needs to be preceded with "!!!SBtab".')
+
+        if 'Document=' not in new_doc_row:
+            raise SBtabError('A doc row needs to define the Document attribute.')
+
+        self.doc_row = new_doc_row
+        self._get_doc_row_attributes()
+        

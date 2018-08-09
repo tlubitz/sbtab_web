@@ -9,6 +9,7 @@ import scipy.optimize
 import random
 import copy
 import math
+
 try:
     from . import SBtab
 except:
@@ -207,9 +208,6 @@ def id_checker(sbtab, sbml):
             except: pass
 
     return sbtabid2sbmlid
-
-
-
 
 
 def xml2html(sbml_file):
@@ -495,3 +493,43 @@ def csv2xls(sbtab):
     fileobject = open('simple.xls','r')
 
     return fileobject
+
+
+def xlsx_to_tsv(file_object):
+    '''
+    convert xlsx SBtab file to tsv format
+    '''
+    import openpyxl
+
+    wb = openpyxl.load_workbook(filename = file_object, read_only=True)
+    ws = wb.active
+    ranges = wb[ws.title]
+    table_string = ''
+    
+    for row in ranges:
+        for column in row:
+            if str(row[0].value).startswith('!'):
+                if column.value != None and str(column.value) != '':
+                    table_string += str(column.value) + '\t'
+            else:
+                table_string += str(column.value) + '\t'
+        table_string = table_string[:-1] + '\n'
+        
+    return table_string
+
+def tab_to_xlsx(sbtab_object):
+    '''
+    converts SBtab object to xlsx file object
+    '''
+    import openpyxl
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    
+    ws['A1'] = sbtab_object.header_row
+    ws.append(sbtab_object.columns)
+    for row in sbtab_object.value_rows:
+        ws.append(row)
+
+    return wb
+    
