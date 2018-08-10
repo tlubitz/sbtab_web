@@ -12,7 +12,6 @@ import validatorSBtab
 import sbml2sbtab
 import sbtab2sbml
 import libsbml
-import makehtml
 import misc
 import SBtab
 import os
@@ -734,14 +733,14 @@ def show_sbtab_xls(def_file,def_file_name):
     file_name = session.sbtab_filenames[int(request.args(0))]
     sbtype    = session.sbtab_types[int(request.args(0))]
 
-    return makehtml.xls2html(xls_sbtab,file_name,sbtype,def_file,def_file_name)
+    return misc.xls2html(xls_sbtab,file_name,sbtype,def_file,def_file_name)
 
 
 def show_sbml():
     '''
     displays a given SBML file
     '''
-    return makehtml.xml2html(session.sbmls[int(request.args(0))])
+    return misc.xml2html(session.sbmls[int(request.args(0))])
 
 def user():
     """
