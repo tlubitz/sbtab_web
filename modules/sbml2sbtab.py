@@ -138,6 +138,9 @@ class SBMLDocument:
         # columns
         columns = ['!ID', '!Name', '!Location', '!Charge', '!IsConstant',
                    '!SBOTerm', '!InitialConcentration', '!hasOnlySubstanceUnits']
+        if self.fbc:
+            columns = columns + ['!SBML:fbc:chemicalFormula', '!SBML:fbc:charge']
+            
         sbtab_compound += '\t'.join(columns) + '\n'
 
         # value rows
@@ -158,7 +161,17 @@ class SBMLDocument:
             except: pass
             try: value_row[7] = str(species.getHasOnlySubstanceUnits())
             except: pass
+
+            if self.fbc:
+                try:
+                    fbc_plugin = species.getPlugin('fbc')
+                    value_row[8] = str(fbc_plugin.getChemicalFormula())
+                    value_row[9] = str(fbc_plugin.getCharge())
+                except:
+                    self.warnings.append('FBC Species information could not be read.')
+
             sbtab_compound += '\t'.join(value_row) + '\n'
+
 
         sbtab_compound = SBtab.SBtabTable(sbtab_compound,
                                           self.filename + '_compound.tsv')
@@ -389,9 +402,27 @@ class SBMLDocument:
             if self.fbc:
                 try:
                     fbc_plugin = reaction.getPlugin('fbc')
-                    value_row[8] = fbc_plugin.getGeneProductAssociation().getId()
-                    value_row[9] = fbc_plugin.getLowerFluxBound()
-                    value_row[10] = fbc_plugin.getUpperFluxBound()
+                    try:
+                        ga = fbc_plugin.getGeneProductAssociation()
+                        fbc_object = libsbml.FbcExtension()
+                        try:
+                            type_code = ga.getAssociation().getTypeCode()
+                            ass_name = fbc_object.getStringFromTypeCode(type_code)
+                        except: ass_name = '|'
+                        print(ass_name)
+                        if ass_name == 'FbcOr' or ass_name == 'FbcAnd':
+                            k = ga.getAssociation()
+                            associations = k.getListOfAssociations()
+                            ass_list = ''
+                            for a in associations:
+                                ass_list += a.getGeneProduct() + ' ' + ass_name + ' '
+                            value_row[8] = ' '.join(ass_list.split(' ')[:-2])
+                        elif ass_name == 'GeneProductRef':
+                            gpr = ga.getAssociation()
+                            value_row[8] = gpr.getGeneProduct()
+                    except: pass
+                    value_row[9] = str(fbc_plugin.getLowerFluxBound())
+                    value_row[10] = str(fbc_plugin.getUpperFluxBound())
                 except:
                     self.warnings.append('FBC Reaction information could not be read.')
             
