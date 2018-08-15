@@ -44,6 +44,7 @@ class SBMLDocument:
             Filename with extension.
         '''
         self.model = sbml_model
+        self.fbc = False
         if filename.endswith('.xml') or filename.endswith('.sbml'):
             cut = re.search('(.*)\.', filename)
             self.filename = cut.group(1)
@@ -55,6 +56,9 @@ class SBMLDocument:
         '''
         self.warnings = []
         sbtab_doc = SBtab.SBtabDocument(self.filename)
+        for i in range(self.model.getNumPlugins()):
+            if self.model.getPlugin(i).getPackageName() == 'fbc':
+                self.fbc = True
 
         for table_type in supported_table_types:
             try:
