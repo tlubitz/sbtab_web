@@ -56,9 +56,11 @@ class SBMLDocument:
         '''
         self.warnings = []
         sbtab_doc = SBtab.SBtabDocument(self.filename)
-        for i in range(self.model.getNumPlugins()):
-            if self.model.getPlugin(i).getPackageName() == 'fbc':
-                self.fbc = True
+
+        try:
+            fbc = self.model.getPlugin('fbc')
+            self.fbc = True
+        except: pass
 
         for table_type in supported_table_types:
             try:
@@ -346,6 +348,10 @@ class SBMLDocument:
         # columns
         columns = ['!ID', '!Name', '!ReactionFormula', '!Location',
                    '!Regulator', '!KineticLaw', '!SBOTerm', '!IsReversible']
+        if self.fbc:
+            columns = columns + ['!SBML:fbc:GeneAssociation', '!SBML:fbc:LowerBound',
+                                 '!SBML:fbc:UpperBound']
+            
         sbtab_reaction += '\t'.join(columns) + '\n'
 
         for reaction in self.model.getListOfReactions():
@@ -379,6 +385,16 @@ class SBMLDocument:
                 value_row[6] ='SBO:%.7d' % reaction.getSBOTerm()
             try: value_row[7] = str(reaction.getReversible())
             except: pass
+
+            if self.fbc:
+                try:
+                    fbc_plugin = reaction.getPlugin('fbc')
+                    value_row[8] = fbc_plugin.getGeneProductAssociation().getId()
+                    value_row[9] = fbc_plugin.getLowerFluxBound()
+                    value_row[10] = fbc_plugin.getUpperFluxBound()
+                except:
+                    self.warnings.append('FBC Reaction information could not be read.')
+            
             sbtab_reaction += '\t'.join(value_row) + '\n'
 
         sbtab_reaction = SBtab.SBtabTable(sbtab_reaction,
