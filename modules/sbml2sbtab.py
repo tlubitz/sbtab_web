@@ -345,9 +345,13 @@ class SBMLDocument:
             if obj.getId() == active_obj: value[3] = 'True'
             else: value[3] = 'False'
 
+            sbtab_fbc += '\t'.join(value_row) + '\n'
 
 
+        sbtab_fbc = SBtab.SBtabTable(sbtab_fbc,
+                                     self.filename + '_fbc_objective.tsv')
 
+        return sbtab_fbc
         
     def get_annotations(self, element):
         '''
