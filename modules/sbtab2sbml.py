@@ -8,12 +8,7 @@ Python script that converts SBtab file/s to SBML.
 import re
 import libsbml
 import string
-import random
 import sys
-import os
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-import SBtab
-
 
 # all allowed secondary SBtab table types
 sbtab_types = ['Quantity', 'Event', 'Rule']

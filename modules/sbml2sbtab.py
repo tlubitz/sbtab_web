@@ -520,7 +520,7 @@ class SBMLDocument:
         columns = ['!ID', '!Parameter:SBML:parameter:id', '!Value',
                    '!Unit', '!Type']
         sbtab_quantity += '\t'.join(columns) + '\n'
-
+        
         # required for later iteration of parameter annotations
         local_parameters = []
         
@@ -539,10 +539,8 @@ class SBMLDocument:
                     local_parameters.append(parameter)
                 sbtab_quantity += '\t'.join(value_row) + '\n'
                 
-
         sbtab_quantity = SBtab.SBtabTable(sbtab_quantity,
                                           self.filename + '_quantity.tsv')
-                    
 
         # test and extend for annotations of local parameters
         for i, quantity in enumerate(local_parameters):
@@ -596,7 +594,10 @@ class SBMLDocument:
                 self.warnings.append('Could not add the annotation %s for'\
                                      'quantity %s' % annotations[1],
                                      parameter.getId())
-                
+
+        if sbtab_quantity.value_rows == []:
+            return False
+        
         return sbtab_quantity
 
     def make_sum_formula(self, reaction):
