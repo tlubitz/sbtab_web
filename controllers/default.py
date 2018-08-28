@@ -477,8 +477,8 @@ def converter():
         downloader_sbtab()
 
     # download sbtab.xlsx
-    if request.vars.dl_xls_sbtab_button:
-        downloader_sbtab_xls()
+    if request.vars.dl_xlsx_sbtab_button:
+        downloader_sbtab_xlsx()
 
     # download all sbtabs
     if request.vars.download_all_button:
@@ -649,26 +649,26 @@ def downloader_sbtab():
                    **{'Content-Type':'text/csv',
                       'Content-Disposition':attachment + ';'})
 
-def downloader_sbtab_xls():
-        response.headers['Content-Type'] = 'application/vnd.ms-excel'#'xls'
-        sbtab = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
-        if not session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)].endswith('.xls'):
-            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]+'.xls'
+def downloader_sbtab_xlsx():
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        sbtab = session.sbtabs[int(request.vars.dl_xlsx_sbtab_button)]
+
+        if not session.sbtab_filenames[int(request.vars.dl_xlsx_sbtab_button)].endswith('.xlsx'):
+            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xlsx_sbtab_button)][:-4]+'.xlsx'
             try:
-                content_xls = misc.csv2xls(sbtab)
+                content_xlsx = misc.tab_to_xlsx(sbtab)
             except:
-                print('The SBtab could not be converted to XLS.')
+                print('The SBtab could not be converted to xlsx.')
                 redirect(URL(''))
         else:
-            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xls_sbtab_button)]
-            content_xls = session.sbtabs[int(request.vars.dl_xls_sbtab_button)]
+            attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_xlsx_sbtab_button)]
+            content_xlsx = session.sbtabs[int(request.vars.dl_xlsx_sbtab_button)]
+        
+        raise HTTP(200, content_xlsx,
+                   **{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                      'Content-Disposition':attachment})
 
-        #response.headers['Content-Disposition'] = attachment
-
-        raise HTTP(200, content_xls,
-                   **{'Content-Type':'text/xls',
-                      'Content-Disposition':attachment + ';'})
-
+    
 def downloader_sbtab_doc(sbtab_list, i):
 
     response.headers['Content-Type'] = 'text/csv'

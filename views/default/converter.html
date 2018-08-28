@@ -51,7 +51,7 @@
 	<div style="text-align:left;width:100%;padding-bottom:50px;">
 	  Information on how to use the SBtab <-> SBML converter can be found in the <a href="../static/files/converter_manual.pdf">manual</a>.
 	  The manual also holds information on where the limitations of the conversion processes lie.
-	  Information on file formats (.csv, .xls) can be found in the <a href="../static/introduction.html">Introductory Section</a>.
+	  Information on file formats (.tsv, .csv, .xlsx) can be found in the <a href="../static/introduction.html">Introductory Section</a>.
 	</div>
 	
 
@@ -106,7 +106,7 @@
 		<form style="text-align:center;width:100%;padding-top:10px;">
 		  <button class="btn" type="submit" value="{{=pos}}" name="erase_sbtab_button">Remove</button>
 		  <button class="btn" type="submit" value="{{=pos}}" name="dl_sbtab_button">Download</button>
-		  <!--<button class="btn" type="submit" value="{{=pos}}" name="dl_xls_sbtab_button">Download as .xls</button>-->
+		  <button class="btn" type="submit" value="{{=pos}}" name="dl_xlsx_sbtab_button">Download as .xlsx</button>
 		</form>
 	      </div>
 	      <br>
@@ -156,10 +156,10 @@
 	  <strong>Logfile of warnings for conversion:</strong>
 	  {{if len(WARNINGS_CON)>1:}}
           {{for f in WARNINGS_CON:}} 
-	  <font color="#FF0000">&bull; {{=f}}</font>
+	  <font color="#FF0000" style="text-align:left">&bull; {{=f}}</font>
 	  {{pass}}
 	  {{else:}}
-	  <font color="#FF0000">&bull; {{=WARNINGS_CON[0]}}</font>
+	  <font color="#FF0000" style="text-align:left">&bull; {{=WARNINGS_CON[0]}}</font>
 	  {{pass}}
 	</section>
 
