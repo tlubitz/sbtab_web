@@ -110,8 +110,8 @@
 
 	<section>
 	  {{if WARNINGS:}}
-	  <div style="text-align:center;width:100%;">
-	    <strong>Warnings for {{=SBTAB_VAL}}:</strong>
+	  <div style="text-align:left;width:100%;">
+	    <strong>File warnings for {{=SBTAB_VAL}}:</strong>
 	  </div>
 
 	  {{for f in WARNINGS:}}
@@ -125,8 +125,9 @@
 	    {{=WARNINGS[0]}}
 	  </div>
 	  {{else:}}
-	  <div style="text-align:center;width:100%;">
-	    No warnings detected.
+	  <div style="text-align:left;width:100%;">
+	    <strong>File validation of {{=SBTAB_VAL}}:</strong>
+	    No file warnings detected.
 	  </div>
 	  {{pass}}	  
 	</section>
@@ -135,18 +136,18 @@
 	
 	<section>
 	  {{if OUTPUT and SBTAB_VAL:}}
-	  <div style="text-align:center;width:100%;">
-	    <strong>File validation of {{=SBTAB_VAL}}:</strong>
+	  <div style="text-align:left;width:100%;">
+	    <strong>File content validation of {{=SBTAB_VAL}}:</strong>
 	  </div>
 
 	  {{for f in OUTPUT:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    &bull; {{=f}}
 	  </div>
 	  {{pass}}
 
 	  {{elif OUTPUT:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    {{=WARNINGS[0]}}
 	  </div>
 	  

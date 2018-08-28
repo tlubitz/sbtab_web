@@ -87,6 +87,22 @@ def validator():
                                                      error_message='Max upload size: 10MB')))
     sbtab_val = None
     output = []
+
+
+    # load the definition file which is required for validation
+    if not session.definition_file:
+        try:
+            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            def_file_open = open(def_path)
+            #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
+            def_file = def_file_open.read()
+            definition_name = 'definitions.tsv'
+            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            session.definition_file = sbtab_def
+            session.definition_file_name = sbtab_def.filename
+        except:
+            session.warnings_val.append('There was an error reading the definition file.')
+
     
     #update session lists
     if lform.process().accepted:
@@ -101,20 +117,6 @@ def validator():
             session.types = []
             session.name2doc = {}
             
-        # load the definition file which is required for validation
-        if not session.definition_file:
-            try:
-                def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-                def_file_open = open(def_path)
-                #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
-                def_file = def_file_open.read()
-                definition_name = 'definitions.tsv'
-                sbtab_def = SBtab.SBtabTable(def_file, definition_name)
-                session.definition_file = sbtab_def
-                session.definition_file_name = sbtab_def.filename
-            except:
-                session.warnings_val.append('There was an error reading the definition file.')
-
         # validate file name
         try:
             sbtab_file = request.vars.File.value.decode('utf-8', 'ignore')
