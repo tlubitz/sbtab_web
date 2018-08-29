@@ -72,15 +72,18 @@ class SBMLDocument:
                 self.warnings.append('Could not generate SBtab %s.' % table_type)
 
         if self.fbc:
-            #sbtab = self.fbc_objective()
             try:
                 sbtab = self.fbc_objective()
                 if sbtab != False:
-                    print('1')
                     sbtab_doc.add_sbtab(sbtab)
-                    print('2')
             except:
                 self.warnings.append('Could not generate SBtab FBC Objective Function.')
+            try:
+                sbtab = self.fbc_gene()
+                if sbtab != False:
+                    sbtab_doc.add_sbtab(sbtab)
+            except:
+                self.warnings.append('Could not generate SBtab FBC Gene.')
                 
         return (sbtab_doc, self.warnings)
 
@@ -320,7 +323,7 @@ class SBMLDocument:
 
     def fbc_objective(self):
         '''
-        builds a (preliminary?) SBtab of the (not established) TableType FbcObjective
+        builds a SBtab of the TableType FbcObjective
         '''
         fbc_plugin = self.model.getPlugin('fbc')
         active_obj = fbc_plugin.getActiveObjectiveId()
@@ -354,7 +357,41 @@ class SBMLDocument:
                                      self.filename + '_fbc_objective.tsv')
         
         return sbtab_fbc
+
+
+    def fbc_gene(self):
+        '''
+        builds a gene SBtab for the content of the fbc plugin
+        '''
+        fbc_plugin = self.model.getPlugin('fbc')
+
+        # header row
+        sbtab_fbc_gene = '!!SBtab SBtabVersion="1.0" Document="%s" TableType='\
+                         '"Gene" TableName="FBC Gene"\n' % self.filename
+
+        # columns
+        columns = ['!ID', '!SBML:fbc:ID', '!SBML:fbc:Name', '!SBML:fbc:GeneProduct','!SBML:fbc:label']
+            
+        sbtab_fbc_gene += '\t'.join(columns) + '\n'
+
+        # value rows
+        for gp in fbc_plugin.getListOfGeneProducts():
+            value_row = [''] * len(columns)
+            value_row[0] = gp.getId()
+            value_row[1] = gp.getId()
+            try: value_row[2] = gp.getName()
+            except: pass
+            value_row[3] = 'True'
+            try: value_row[4] = gp.getLabel()
+            except: pass
+            sbtab_fbc_gene += '\t'.join(value_row) + '\n'
+
+        sbtab_fbc_gene = SBtab.SBtabTable(sbtab_fbc_gene,
+                                          self.filename + '_fbc_gene.tsv')
         
+        return sbtab_fbc_gene
+
+    
     def get_annotations(self, element):
         '''
         Tries to extract an annotation from an SBML element.
