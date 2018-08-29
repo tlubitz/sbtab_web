@@ -240,6 +240,30 @@ def converter():
     session.sbmlid2label = {'24':'_SBML_L2V4',
                             '31':'_SBML_L3V1'}
 
+    # initialise required variables and files
+    session.warnings_con = []
+
+    if not session.definition_file:
+        try:
+            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            def_file_open = open(def_path)
+            #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv') # deprecated?
+            def_file = def_file_open.read()
+            definition_name = 'definitions.tsv'
+            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            session.definition_file = sbtab_def
+            session.definition_file_name = sbtab_def.filename
+        except:
+            session.warnings_con.append('There was an error reading the definition file.')
+            redirect(URL(''))
+
+    if 'sbtabs' not in session:
+        session.sbtabs = []
+        session.sbtab_filenames = []
+        session.sbtab_docnames = []
+        session.name2doc = {}
+        session.types = []
+    
     # #########################################################################
     # form for SBtab files
     lform = SQLFORM.factory(Field('File', 'upload',uploadfolder="/tmp",
@@ -249,30 +273,6 @@ def converter():
     
     if lform.process(formname='form_one').accepted:
         response.flash = 'form accepted'
-
-        # initialise required variables and files
-        session.warnings_con = []
-
-        if not session.definition_file:
-            try:
-                def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-                def_file_open = open(def_path)
-                #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv') # deprecated?
-                def_file = def_file_open.read()
-                definition_name = 'definitions.tsv'
-                sbtab_def = SBtab.SBtabTable(def_file, definition_name)
-                session.definition_file = sbtab_def
-                session.definition_file_name = sbtab_def.filename
-            except:
-                session.warnings_con.append('There was an error reading the definition file.')
-                redirect(URL(''))
-                
-        if 'sbtabs' not in session:
-            session.sbtabs = []
-            session.sbtab_filenames = []
-            session.sbtab_docnames = []
-            session.name2doc = {}
-            session.types = []
 
         # validate file name
         try: sbtab_file = request.vars.File.value.decode('utf-8', 'ignore')
@@ -535,7 +535,7 @@ def converter():
                     session.sbtabs = [sbtab]
                     session.sbtab_filenames = [sbtab.filename]
                     if sbtab_doc.name not in session.sbtab_docnames:
-                        session.sbtab_docnames = [sbtab_doc.name]
+                        session.sbtab_docnames.append(sbtab_doc.name)
                     session.types = [sbtab.table_type]
                     session.name2doc = {}
                     session.name2doc[sbtab.filename] = sbtab_doc.name
