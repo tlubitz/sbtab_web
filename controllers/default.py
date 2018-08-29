@@ -241,7 +241,8 @@ def converter():
                             '31':'_SBML_L3V1'}
 
     # initialise required variables and files
-    session.warnings_con = []
+    if not 'warnings_con' in session:
+        session.warnings_con = []
 
     if not session.definition_file:
         try:
@@ -272,9 +273,10 @@ def converter():
                                                      error_message='Max upload size: 10MB')))
     
     if lform.process(formname='form_one').accepted:
+        session.warnings_con = []
         response.flash = 'form accepted'
 
-        # validate file name
+        # validate file encoding and name
         try: sbtab_file = request.vars.File.value.decode('utf-8', 'ignore')
         except:
             session.warnings_con.append('The file does not adhere to spreadsheet standards.')
@@ -287,11 +289,13 @@ def converter():
 
         # convert from xlsx to csv if required
         if filename.endswith('.xlsx'):
-            try: sbtab_file = misc.xlsx_to_tsv(sbtab_file)
+            sbtab_file = request.vars.File.value
+            try:
+                sbtab_file = misc.xlsx_to_tsv(sbtab_file)
             except:
                 session.warnings_con.append('The xlsx file could not be converted to SBtab. Please ensure file format validity.')
                 redirect(URL(''))
-
+                        
         # check if there are more than one SBtab files in the file and create SBtabTable or SBtabDocument
         try: sbtab_amount = misc.count_tabs(sbtab_file)
         except:
