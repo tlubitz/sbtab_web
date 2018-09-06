@@ -39,6 +39,9 @@ BuildEnzyme	Column	Reaction	Boolean	Include enzyme in SBML model
 BuildEnzymeProduction	Column	Reaction	Boolean	Describe enzyme production in SBML model
 SBOTerm	Column	Reaction	string	SBO term of the entity
 Identifiers	Column	Reaction	string	Annotation of the entity
+SBML:fbc:GeneAssociation	Column	Reaction	string	Gene Association from the FBC package
+SBML:fbc:LowerBound	Column	Reaction	string	Reactions Lower Bound of the FBC package
+SBML:fbc:UpperBound	Column	Reaction	string	Reactions Upper Bound of the FBC package
 Comment	Column	Compound	string	Comment
 ReferenceName	Column	Compound	string	Reference title, authors, etc. (as free text)
 ReferencePubMed	Column	Compound	string	Reference PubMed ID
@@ -66,6 +69,8 @@ EnzymeRole	Column	Compound	string	Enzymatic activity
 RegulatorRole	Column	Compound	string	Regulatory activity
 SBOTerm	Column	Compound	string	SBO term of the entity
 Identifiers	Column	Compound	string	Annotation of the entity
+SBML:fbc:ChemicalFormula	Column	Compound	string	Compounds chemical formula for the FBC package
+SBML:fbc:Charge	Column	Compound	float	Compounds charge for the FBC package
 Comment	Column	Enzyme	string	Comment
 ReferenceName	Column	Enzyme	string	Reference title, authors, etc. (as free text)
 ReferencePubMed	Column	Enzyme	string	Reference PubMed ID
@@ -215,6 +220,11 @@ GeneProduct	Column	Gene	string	Gene product shortname
 GeneProduct:SBML:species:id	Column	Gene	string	SBML ID of protein
 Operon	Column	Gene	string	Operon in which gene is located
 Identifiers	Column	Gene	string	Annotation of the entity
+SBML:fbc:ID	Column	Gene	string	Unique identifier of the gene in the FBC package
+SBML:fbc:Name	Column	Gene	string	Name of the gene in the FBC package
+SBML:fbc:GeneProduct	Column	Gene	Boolean	Flag indicating if the gene is an FBC gene product
+SBML:fbc:GeneAssociation	Column	Gene	Boolean	Flag indicating if the gene is an FBC gene association
+SBML:fbc:Label	Column	Gene	string	Label of the gene in the FBC package
 Comment	Column	Relation	string	Comment
 ReferenceName	Column	Relation	string	Reference title, authors, etc. (as free text)
 ReferencePubMed	Column	Relation	string	Reference PubMed ID
@@ -322,3 +332,10 @@ ComponentB:Residue	Column	rxnconReactionList	string	Residue of Component B
 Quality	Column	rxnconReactionList	string	Quality of reaction
 Literature:Identifiers:pubmed	Column	rxnconReactionList	string	Pubmed ID
 Comment	Column	rxnconReactionList	string	Comment
+ID	Column	FbcObjective	string	Unique identifier of objective in FBC package
+Name	Column	FbcObjective	string	Name of objective in FBC package
+Type	Column	FbcObjective	string	Type of objective in FBC package
+Active	Column	FbcObjective	Boolean	Flag indicating if the objective is active
+FluxObjectiveCoefficient	Column	FbcObjective	float	Coefficient for FBC objective
+FluxObjectiveReaction	Column	FbcObjective	string	Reaction identifier for objective
+
