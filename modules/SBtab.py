@@ -49,7 +49,7 @@ class SBtabTable():
         self.table_string = table_string
 
         # validate file extension
-        self.validate_extension()
+        self._validate_extension()
 
         # validate singular SBtab
         self._singular()
@@ -59,9 +59,9 @@ class SBtabTable():
         self.table = self.cut_table_string(table_string)
 
         # Initialise table
-        self.initialize_table()
+        self._initialize_table()
 
-    def validate_extension(self, test=None):
+    def _validate_extension(self, test=None):
         '''
         Checks the extension of the file for invalid formats.
         '''
@@ -125,7 +125,7 @@ class SBtabTable():
             table_string.append('\t'.join(row))
         return '\n'.join(table_string)
 
-    def initialize_table(self):
+    def _initialize_table(self):
         '''
         Loads table informations and class variables.
         '''
@@ -140,13 +140,13 @@ class SBtabTable():
         (self.table_type,
          self.table_name,
          self.table_document,
-         self.table_version) = self.get_table_information()
+         self.table_version) = self._get_table_information()
 
         # Read the columns of the table
-        (self.columns, self.columns_dict) = self.get_columns()
+        (self.columns, self.columns_dict) = self._get_columns()
 
         # Read data rows
-        self.value_rows = self.get_rows()
+        self.value_rows = self._get_rows()
 
     def _get_doc_row(self):
         '''
@@ -210,32 +210,32 @@ class SBtabTable():
 
         return row
 
-    def get_table_information(self):
+    def _get_table_information(self):
         '''
         Reads declaration row and stores the SBtab table attributes.
         '''
         no_name_counter = 0
 
         # Save table type, otherwise raise error
-        try: table_type = self.get_custom_table_information('TableType')
+        try: table_type = self._get_custom_table_information('TableType')
         except: raise SBtabError('The TableType of the SBtab is not defined!')
 
         # Save table name, otherwise create name
-        try: table_name = self.get_custom_table_information('TableName')
+        try: table_name = self._get_custom_table_information('TableName')
         except:
             table_name = table_type.capitalize() + '_unnamed'
             self.header_row += " TableName='%s'" % table_name
 
         # Save table document, otherwise return None
-        try: table_document = self.get_custom_table_information('Document')
+        try: table_document = self._get_custom_table_information('Document')
         except: table_document = None
 
         # save table version, otherwise return None
-        try: table_version = self.get_custom_table_information('SBtabVersion')
+        try: table_version = self._get_custom_table_information('SBtabVersion')
         except: table_version = None
 
         # save date
-        try: self.date = self.get_custom_table_information('Date')
+        try: self.date = self._get_custom_table_information('Date')
         except:
             now = datetime.datetime.now()
             self.date = '-'.join([str(now.year),str(now.month),str(now.day)])
@@ -244,7 +244,7 @@ class SBtabTable():
                 
         return table_type, table_name, table_document, table_version
 
-    def get_custom_table_information(self, attribute_name):
+    def _get_custom_table_information(self, attribute_name):
         '''
         Retrieves the value of a table attribute in the declaration line
 
@@ -261,7 +261,7 @@ class SBtabTable():
             raise SBtabError('''The %s of the SBtab is
                                 not defined!''' % attribute_name)
 
-    def get_columns(self):
+    def _get_columns(self):
         '''
         Extract column headers, add mandatory first column name if necessary.
         '''
@@ -280,7 +280,7 @@ class SBtabTable():
 
         return column_names, columns
 
-    def get_rows(self):
+    def _get_rows(self):
         '''
         Extract the rows of the SBtab
         '''
@@ -551,12 +551,12 @@ class SBtabTable():
         '''
         try:
             import pandas as pd
-            rows = self.get_rows()
+            rows = self._get_rows()
             n_cols = max(map(len, rows))
             column_names = list(map(lambda s: s[1:], self.columns))
             while len(column_names) < n_cols:
                 column_names += ['Col%d' % len(column_names)]
-            df = pd.DataFrame(data=self.get_rows(), columns=column_names)
+            df = pd.DataFrame(data=self._get_rows(), columns=column_names)
             return df
         except:
             raise SBtabError('Pandas dataframe could not be built.')
