@@ -742,6 +742,34 @@ class SBtabDocument:
             # save document type
             try: self.doc_type = self.get_custom_doc_information('DocumentType')
             except: self.doc_type = None
+
+    def change_attribute(self, attribute, value):
+        '''
+        change the value of an SBtab attribute
+        '''
+        try:
+            att_value_new = "%s='%s'" % (attribute, value)
+        except:
+            raise SBtabError('Please provide only strings as attribute and value.')
+        
+        if attribute not in self.doc_row:
+            self.doc_row = self.doc_row[:-1] + ' ' + att_value_new + '\n'
+        else:
+            try:
+                att_value = re.search("%s='([^']*)'" % attribute, self.doc_row).group(0)
+                self.doc_row = self.doc_row.replace(att_value, att_value_new)
+            except:
+                raise SBtabError('Attribute value %s could not be replaced in the header.' % attribute)
+
+    def get_attribute(self, attribute):
+        '''
+        get the value of an SBtab attribute
+        '''
+        try:
+            value = re.search("%s='([^']*)'" % attribute, self.header_row).group(1)
+            return value
+        except:
+            raise SBtabError('The attribute %s was not found in the header row.' % attribute)
             
     def set_version(self, version):
         '''
