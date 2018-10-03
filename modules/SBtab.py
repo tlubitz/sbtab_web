@@ -240,7 +240,7 @@ class SBtabTable():
             now = datetime.datetime.now()
             self.date = '-'.join([str(now.year),str(now.month),str(now.day)])
             if 'Date=' not in self.header_row:
-                self.header_row = self.header_row[:-1] + " Date='%s'\n" % self.date
+                self.header_row = self.header_row + " Date='%s'\n" % self.date
                 
         return table_type, table_name, table_document, table_version
 
@@ -299,7 +299,35 @@ class SBtabTable():
         return value_rows
 
 
-    # Here, the SBtab API actually starts
+    # Here, the SBtab API starts
+
+    def change_attribute(self, attribute, value):
+        '''
+        change the value of an SBtab attribute
+        '''
+        try:
+            att_value_new = "%s='%s'" % (attribute, value)
+        except:
+            raise SBtabError('Please provide only strings as attribute and value.')
+        
+        if attribute not in self.header_row:
+            self.header_row = self.header_row[:-1] + ' ' + att_value_new + '\n'
+        else:
+            try:
+                att_value = re.search("%s='([^']*)'" % attribute, self.header_row).group(0)
+                self.header_row = self.header_row.replace(att_value, att_value_new)
+            except:
+                raise SBtabError('Attribute value %s could not be replaced in the header.' % attribute)
+
+    def get_attribute(self, attribute):
+        '''
+        get the value of an SBtab attribute
+        '''
+        try:
+            value = re.search("%s='([^']*)'" % attribute, self.header_row).group(1)
+            return value
+        except:
+            raise SBtabError('The attribute %s was not found in the header row.' % attribute)
     
     def change_value(self, row, column, new):
         '''
@@ -709,7 +737,7 @@ class SBtabDocument:
             try: self.date = self.get_custom_doc_information('Date')
             except:
                 if 'Date=' not in self.doc_row:
-                    self.doc_row = self.doc_row[:-1] + ' Date="%s"\n' % self.date
+                    self.doc_row = self.doc_row[:-1] + " Date='%s'\n" % self.date
 
             # save document type
             try: self.doc_type = self.get_custom_doc_information('DocumentType')
