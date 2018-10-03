@@ -102,3 +102,14 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+errors/
+sessions/
+*~
+*.pyc
+modules/BIOMD0000000061_modeldata24.xml
+modules/MODEL1507180055.xml
+modules/e_coli_core.xml
+modules/extended_core.tsv
+modules/extended_core.xml
+modules/single_test.tsv
