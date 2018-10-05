@@ -76,7 +76,6 @@ def split_sbtabs(sbtab_strings):
     counter = 1
     
     for row in sbtab_strings.split('\n'):
-        if row.startswith('!!!'): continue
         if row.startswith('!!'):
             if sbtab_string == '':
                 sbtab_string = row + '\n'
@@ -255,7 +254,7 @@ def tsv_to_html_improved(sbtab, filename=None):
     </main>
     <hr>
     <footer class="container-fluid bg-3 text-center">
-    <p>Thanks to <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a> and <a href="http://web2py.com/" target="_blank">Web2py</a>. Code and further information on <a href="https://github.com/tlubitz/SBtab" target="_blank">Github</a>.</p> 
+    <p>Thanks to <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a> and <a href="http://web2py.com/" target="_blank">Web2py</a>. Code and further information on <a href="https://github.com/tlubitz/parameter_balancing" target="_blank">Github</a>.</p> 
     </footer>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -266,6 +265,40 @@ def tsv_to_html_improved(sbtab, filename=None):
     return sbtab_html
 
 
+def csv2xls(sbtab):
+    '''
+    Converts SBtab file to xls file.
+    Parameters
+    ----------
+    sbtab_file : SBtab
+       SBtab object
+    '''
+    import xlwt
+
+    # open workbook
+    book  = xlwt.Workbook()
+    sheet = book.add_sheet('Sheet 1')
+
+    # write header and columns
+    first_row = sheet.row(0)
+    first_row.write(0,sbtab.header_row)
+
+    second_row = sheet.row(1)
+    for i, element in enumerate(sbtab.columns):
+        second_row.write(i, element)
+
+    # write the rows of the SBtab
+    for i, row in enumerate(sbtab.value_rows):
+        new_row = sheet.row(i+2)
+        for j, element in enumerate(row):
+            new_row.write(j,element)
+
+    book.save('simple.xls')
+    fileobject = open('simple.xls','r')
+
+    return fileobject
+
+
 def xlsx_to_tsv(file_object):
     '''
     convert xlsx SBtab file to tsv format
@@ -273,7 +306,7 @@ def xlsx_to_tsv(file_object):
     import openpyxl
     from io import BytesIO
     
-    wb = openpyxl.load_workbook(filename = BytesIO(file_object))
+    wb = openpyxl.load_workbook(filename = BytesIO(file_object))#, read_only=True)
     ws = wb.active
     ranges = wb[ws.title]
     table_string = ''
@@ -288,7 +321,6 @@ def xlsx_to_tsv(file_object):
         table_string = table_string[:-1] + '\n'
         
     return table_string
-
 
 def tab_to_xlsx(sbtab_object):
     '''
@@ -309,9 +341,9 @@ def tab_to_xlsx(sbtab_object):
     fileobject = open('transition.xlsx','rb')
 
     return fileobject.read()
-
-
+    
 urns = ["obo.chebi","kegg.compound","kegg.reaction","obo.go","obo.sgd","biomodels.sbo","ec-code","kegg.orthology","uniprot","hmdb"]
+
 def csv2html(sbtab_file,file_name,delimiter,sbtype,def_file=None,def_file_name=None):
     '''
     generates html view out of csv file
@@ -326,7 +358,7 @@ def csv2html(sbtab_file,file_name,delimiter,sbtype,def_file=None,def_file_name=N
         def_file      = def_file_open.read()
         def_delimiter = '\t'
 
-    col2description = find_descriptions(def_file,def_delimiter,sbtype)
+    col2description = findDescriptions(def_file,def_delimiter,sbtype)
 
     ugly_sbtab = sbtab_file.split('\n')
     nice_sbtab = '<p><h2><b>'+file_name+'</b></h2></p>'
@@ -387,7 +419,7 @@ def xls2html(xls_sbtab,file_name,sbtype,def_file=None,def_file_name=None):
         def_file      = def_file_open.read()
         def_delimiter = '\t'
 
-    col2description = find_descriptions(def_file,def_delimiter,sbtype)
+    col2description = findDescriptions(def_file,def_delimiter,sbtype)
 
     nice_sbtab = '<p><h2><b>'+file_name+'</b></h2></p>'
     ident_url = False
@@ -446,7 +478,7 @@ def xml2html(sbml_file):
 
     return new_sbml
 
-def find_descriptions(def_file,def_delimiter,sbtype):
+def findDescriptions(def_file,def_delimiter,sbtype):
     '''
     preprocesses the definition file in order to enable some nice mouseover effects for the known column names
     '''    
@@ -476,6 +508,7 @@ def extract_supported_table_types():
     try_paths = ['definitions.tsv',
                  os.path.join(os.path.dirname(__file__), '../static/files/default_files/definitions.tsv'),
                  os.path.join(os.path.dirname(__file__), '../definition_table/definitions.tsv')]
+                 os.path.join(os.path.dirname(__file__), 'definitions.tsv')]
 
     for path in try_paths:
         try:
