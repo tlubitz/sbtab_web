@@ -647,7 +647,7 @@ def downloader_sbtab():
         attachment = 'attachment;filename=' + session.sbtab_filenames[int(request.vars.dl_sbtab_button)]
         response.headers['Content-Disposition'] = attachment
         sbtab = session.sbtabs[int(request.vars.dl_sbtab_button)]
-        content = sbtab.return_table_string()
+        content = sbtab.to_str()
 
         raise HTTP(200,str(content),
                    **{'Content-Type':'text/csv',
@@ -687,7 +687,7 @@ def downloader_sbtab_doc(sbtab_list, i):
     content = ''
     for sbtab in sbtab_list:
         try:
-            content += sbtab.return_table_string() + '\n\n'
+            content += sbtab.to_str() + '\n\n'
         except:
             print('Could not read SBtab %s' % sbtab.filename)
 
@@ -716,7 +716,7 @@ def show_sbtab_def():
     try: sbtab_def = session.definition_file
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly. Please reload session (Troubleshooting page).'
 
-    try: return misc.tsv_to_html(sbtab_def.return_table_string(), sbtab_def.filename)
+    try: return misc.tsv_to_html(sbtab_def.to_str(), sbtab_def.filename)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
 
@@ -727,7 +727,7 @@ def show_sbtab():
     try: sbtab = session.sbtabs[int(request.args(0))]
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
-    try: return misc.tsv_to_html(sbtab.return_table_string(), sbtab.filename)
+    try: return misc.tsv_to_html(sbtab.to_str(), sbtab.filename)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
 

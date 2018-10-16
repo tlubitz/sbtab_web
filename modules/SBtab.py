@@ -56,10 +56,13 @@ class SBtabTable():
 
         # process string
         self.delimiter = misc.check_delimiter(table_string)
-        self.table = self._cut_table_string(table_string)
+        preprocess = self._preprocess_table_string(table_string)
+        self.table = self._cut_table_string(preprocess)
 
         # Initialise table
         self._initialize_table()
+
+        self.object_type = 'table'
 
     def _validate_extension(self, test=None):
         '''
@@ -89,7 +92,24 @@ class SBtabTable():
             raise SBtabError('There are more than one SBtab tables in this file. Please'\
                              ' use the SBtabDocument class instead of SBtabTable.')
 
-    
+    def _preprocess_table_string(self, table_string):
+        '''
+        there is so much stuff that can be made wrong with the input files. This
+        function tries to catch some of the common problems
+        '''
+        table_string = table_string.replace('\r','')
+        table_string = table_string.replace('^M','')
+        table_string_prep = ''
+        
+        for row in table_string.split('\n'):
+            row = self._dequote(row)
+            while "''" in row:
+                row = row.replace("''","'")
+            table_string_prep += row +'\n'
+
+        return table_string_prep
+        
+        
     def _cut_table_string(self, table_string, delimiter_test=None):
         '''
         the SBtab is initially given as one long string;
@@ -98,13 +118,11 @@ class SBtabTable():
         if delimiter_test: delimiter = delimiter_test
         else: delimiter = self.delimiter
 
-        table_string = table_string.replace('^M','\n')
-
         table_list = []
         for row in table_string.split('\n'):
-            if row.replace(delimiter, '') != '':
+            if row.replace(delimiter, '') != '' and row.replace(delimiter, '') != '[]':
                 if not row.startswith('"!') and not row.startswith('!'):
-                    if '"' in row or '{' in row:
+                    if "'" in row or '{' in row:
                         cut_row = self._handle_row(row, delimiter)
                         table_list.append(cut_row)
                     else: table_list.append(row.split(delimiter))
@@ -158,6 +176,10 @@ class SBtabTable():
                     elif item.startswith("'{"):
                         jsons.append(item)
                         running_json = True
+                        if item.endswith("}'"):
+                            items.append(','.join(jsons))
+                            jsons = []
+                            running_json = False
                     # 3rd case: we have a JSON column end
                     elif running_json and item.endswith("}'"):
                         jsons.append(item)
@@ -167,9 +189,9 @@ class SBtabTable():
                     # 4th case: we have a quoted column
                     elif item.startswith("'") and not item.startswith("'{") and not item.endswith("}'"):
                         items.append(item)
-                    
                     # 5th case: we have a normal column
-                    else: items = items + item.split(delimiter)
+                    else:
+                        items = items + item.split(delimiter)
                     
                 else:
                     # for all other delimiters we are comparably easy going:
@@ -182,10 +204,8 @@ class SBtabTable():
         items.pop()
 
         return items
-        
 
-        
-    def return_table_string(self):
+    def to_str(self):
         '''
         sometimes the file is required as a string (e. g. for
         writing files to harddisk; return string
@@ -207,7 +227,7 @@ class SBtabTable():
 
         # Read the header row from table
         self.header_row = self._get_header_row()
-
+        
         # Read the table information from header row
         (self.table_type,
          self.table_name,
@@ -247,24 +267,21 @@ class SBtabTable():
         # Find header row
         for row in self.table:
             for entry in row:
-                if str(entry).startswith('!!'):
-                    header_row = row
+                if str(entry).startswith('!!') and not str(entry).startswith('!!!'):
+                    header_row = ''.join(row).rstrip('\n')
                     break
-                elif str(entry).startswith('"!!'):
-                    rm1 = row.replace('""', '#')
-                    rm2 = row.remove('"')
-                    header_row = rm2.replace('#', '"')
+                elif str(entry).startswith("'!!") and not str(entry).startswith("'!!!"):
+                    rm1 = entry.replace("''", '#')
+                    rm2 = rm1.replace("'",'')
+                    header_row = rm2.replace('#', "'")
                     break
 
         # Save string or raise error
         if not header_row:
             raise SBtabError('''This is not a valid SBtab table, please use
             validator to check format or have a look in the specification!''')
-        else:
-            header_row = ' '.join(header_row)
 
         header_row_dq = self._dequote(header_row)
-
         return header_row_dq
             
     def _dequote(self, row):
@@ -312,7 +329,7 @@ class SBtabTable():
             now = datetime.datetime.now()
             self.date = '-'.join([str(now.year),str(now.month),str(now.day)])
             if 'Date=' not in self.header_row:
-                self.header_row = self.header_row + " Date='%s'" % self.date
+                self.header_row = self.header_row.replace(self.delimiter,'') + " Date='%s'" % self.date
                 
         return table_type, table_name, table_document, table_version
 
@@ -605,7 +622,7 @@ class SBtabTable():
 
         try:
             f = open(filename, 'w')
-            table_string = self.return_table_string()
+            table_string = self.to_str()
             table_string_lb = table_string.replace('^M','\n')
             f.write(table_string_lb)
             f.close()
@@ -711,6 +728,8 @@ class SBtabDocument:
             self.add_sbtab_string(sbtab_init, filename)
         elif sbtab_init:
             self.add_sbtab(sbtab_init)
+
+        self.object_type = 'doc'
         
     def add_sbtab(self, sbtab):
         '''
@@ -762,6 +781,11 @@ class SBtabDocument:
                     # here, we find a possible doc row
                     if sbtab_s.startswith('!!!'):
                         self.doc_row = sbtab_s
+                        continue
+                    elif sbtab_s.startswith('"!!!'):
+                        rm1 = sbtab_s.replace('""', '#')
+                        rm2 = rm1.replace('"','')
+                        self.doc_row = rm2.replace('#', '"')                     
                         continue
                     # then, go on with the cut SBtabs
                     name_single = str(i) + '_' + self.filename
@@ -929,7 +953,7 @@ class SBtabDocument:
             f = open(self.filename, 'w')
             f.write(self.doc_row)
             for sbtab in self.sbtabs:
-                f.write(sbtab.return_table_string() + '\n\n')
+                f.write(sbtab.to_str() + '\n\n')
             f.close()
             return True
         except:
@@ -937,6 +961,16 @@ class SBtabDocument:
 
         return True
 
+    def to_str(self):
+        '''
+        returns SBtab Document as one large string
+        '''
+        sbtab_document = ''
+        for sbtab in self.sbtabs:
+            sbtab_document += sbtab.to_str() + '\n\n'
+
+        return sbtab_document
+    
     def get_custom_doc_information(self, attribute_name, test_row=None):
         '''
         Retrieves the value of a doc attribute in the doc line
