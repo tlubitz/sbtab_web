@@ -92,12 +92,13 @@ def validator():
     # load the definition file which is required for validation
     if not session.definition_file:
         try:
-            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-            def_file_open = open(def_path)
+            sbtab_def = misc.open_definitions_file(os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv')
+            #def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            #def_file_open = open(def_path)
             #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
-            def_file = def_file_open.read()
-            definition_name = 'definitions.tsv'
-            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            #def_file = def_file_open.read()
+            #definition_name = 'definitions.tsv'
+            #sbtab_def = SBtab.SBtabTable(def_file, definition_name)
             session.definition_file = sbtab_def
             session.definition_file_name = sbtab_def.filename
         except:
@@ -246,12 +247,13 @@ def converter():
 
     if not session.definition_file:
         try:
-            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-            def_file_open = open(def_path)
+            sbtab_def = misc.open_definitions_file(os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv')
+            #def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            #def_file_open = open(def_path)
             #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv') # deprecated?
-            def_file = def_file_open.read()
-            definition_name = 'definitions.tsv'
-            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            #def_file = def_file_open.read()
+            #definition_name = 'definitions.tsv'
+            #sbtab_def = SBtab.SBtabTable(def_file, definition_name)
             session.definition_file = sbtab_def
             session.definition_file_name = sbtab_def.filename
         except:
@@ -593,12 +595,13 @@ def def_files():
     session.warnings_def = []
     if not session.definition_file:
         try:
-            def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-            def_file_open = open(def_path)
+            sbtab_def = misc.open_definitions_file(os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv')
+            #def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
+            #def_file_open = open(def_path)
             #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
-            def_file = def_file_open.read()
-            definition_name = 'definitions.tsv'
-            sbtab_def = SBtab.SBtabTable(def_file, definition_name)
+            #def_file = def_file_open.read()
+            #definition_name = 'definitions.tsv'
+            #sbtab_def = SBtab.SBtabTable(def_file, definition_name)
             session.definition_file = sbtab_def
             session.definition_file_def = copy.deepcopy(sbtab_def)
             session.definition_file_name = sbtab_def.filename
