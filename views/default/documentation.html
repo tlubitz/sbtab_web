@@ -1,0 +1,463 @@
+{{extend 'layout2.html'}}
+
+{{block title}}
+<title>SBtab - Documentation</title>
+{{end}}
+
+{{block dynamic_nav}}
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/gettingstarted.html">Getting started</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="Click to see SBtab Online Tools">
+    Online Tools
+  </a>
+  <ul class="dropdown-menu">
+    <li>
+      <a href="https://www.sbtab.net/sbtab/default/validator.html">Validator</a>
+    </li>
+    <li>
+      <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML converter</a>
+    </li>
+    <li>
+      <a href="https://www.sbtab.net/sbtab/default/def_files.html">Customize SBtab</a>
+    </li>
+  </ul>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/documentation.html">Documentation<span class="sr-only">(current)</span></a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/downloads.html">Download</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="https://www.sbtab.net/sbtab/default/team.html">Contact</a>
+</li>
+{{end}}
+
+{{block center}}
+
+<header>
+  <div class="container-fluid bg-1 text-center">
+    <div class="jumbotron" align="center">
+      <h1><small>Documentation</small></h1>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container-fluid bg-3 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+
+	<article>
+	  <h2>Introduction</h2>
+	  <p>
+	    <ul class="list-group">
+	      <li class="list-group-item">
+		Have a look at some <a href="https://www.sbtab.net/sbtab/default/downloads.html"> example files</a> 
+		to get a first impression of the SBtab format.
+	      </li>
+	      <li class="list-group-item">
+		Have a look at our <a href="https://www.sbtab.net/sbtab/default/documentation.html">Frequently Asked Questions</a> page.
+	      </li>
+	      <li class="list-group-item">
+		Learn how to describe <a href="https://www.sbtab.net/sbtab/default/gettingstarted.html">biochemical network models</a>
+		in the  SBtab format.
+	      </li>
+	      <li class="list-group-item">
+		Learn how to <a href="https://www.sbtab.net/sbtab/default/documentation.html">make your data tables SBtab-compliant</a> in a few steps.
+	      </li>
+	      <li class="list-group-item">
+		Read the  <a href="https://www.sbtab.net/sbtab/default/downloads.html">SBtab draft specification</a> to learn about details of the SBtab format
+	      </li>
+	    </ul>
+	  </p>
+	</article>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+
+	
+
+  <div class="container-fluid bg-4 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+	<article>
+	  <h2>SBtab format specification</h2>
+	  <p>
+	    <ul class="list-group">
+	      <li class="list-group-item">
+		<a href="https://www.sbtab.net/sbtab/static/documents/SBtab_1.0_Specification.pdf">SBtab version 1.0</a>
+	      </li>
+	      <li class="list-group-item">
+		<a href="https://www.sbtab.net/sbtab/static/documents/SBtab_0.9_Specification.pdf">SBtab version 0.9</a>
+	      </li>
+	      <li class="list-group-item">
+		<a href="https://www.sbtab.net/sbtab/static/documents/SBtab_0.8_Specification.pdf">SBtab version 0.8</a>
+	      </li>
+	    </ul>
+	  </p>
+	  <p>A specification for the current version of SBtab can also be found on <a href="http://arxiv.org/abs/1502.01463">arxiv.org</a>.</p>
+	</article>
+	
+	<article>
+	  <h2>Definition of SBtab table types</h2>
+	  <p> Default table types are defined by the SBtab file <a href="https://www.sbtab.net/sbtab/static/documents/definitions.tsv">definitions.tsv</a>.</p>
+	  <p>SBtab example files can be found in <a href="https://www.sbtab.net/sbtab/default/downloads.html">the Files Section</a>.</p>
+	</article>   
+	
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+
+  <div class="container-fluid bg-3 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+
+	<h1>SBtab Employment Options</h1>
+
+	<article>
+	  <h2>SBtab Online Interface</h2>
+	  <p>
+	    You can employ SBtab online!
+	  </p>
+	</article>
+
+	<article>
+	  <h2>Python code</h2>
+	  <p>
+	    Python code for SBtab can be downloaded from 
+	    <a href="https://github.com/tlubitz/SBtab">Github</a>.
+	  </p>
+	  <p>You can also visit the
+	    <a href="https://www.sbtab.net/sbtab/static/python-documentation/index.html">Code Documentation</a>.
+	  </p>
+	</article>	
+	
+	<article>
+	  <h2>Add-in for Excel</h2>
+	  <p>
+	    An SBtab add-in for Microsoft Excel, xlSBtab, can be downloaded from 
+	    <a href="https://github.com/fbergmann/xlSBtab/releases/download/v1.0/Setup_xlSBtab_1.1.exe"
+	       target="_blank">github</a>. See a <a href="https://www.sbtab.net/sbtab/static/images/screenshot.png" target="_blank">screenshot of the plugin</a>.
+	  </p>
+	  <p>
+	    <strong>Installation:</strong> A windows installer will be downloaded to
+	    the hard disk and can be started by a click. The prerequisites for
+	    using the add-in are:</p>
+	  <ol>
+	    <li>Windows Vista or higher</li>
+	    <li>Microsoft Excel 2010 or higher, 32 Bit</li>
+	    <li>Microsoft .NET Framework 4.5 (full) or higher (can be downloaded directly from 
+	      <a href="https://www.microsoft.com/en-us/download/details.aspx?id=30653">Microsoft</a>)
+	    </li>
+	    <li>Microsoft Visual Studio 2010 Tools for Office Runtime (VSTO) (can be downloaded directly from <a href="http://www.microsoft.com/en-us/download/details.aspx?id=48217">Microsoft</a>)
+	    </li>
+	  </ol>
+	  <p>
+	    After installation, the SBtab add-in will be automatically initialised
+	    upon Excel startup. The tools are accessible by choosing add-ins from
+	    the menu bar. The add-in enables users to upload and validate SBtab
+	    files. Furthermore, SBtab files can be exported to SBML (as long as
+	    they are valid and provide a model structure) and vice versa (see
+	    screenshot). If you experience any  troubles installing or using xlSBtab,
+	    please  contact us (Frank Bergmann
+	    (frank.bergmann@bioquant.uni-heidelberg.de) or Timo Lubitz
+	    (timo.lubitz@gmail.com)).
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>Python-SQlite interface</h2>
+	  <p>
+	    Single or collections of SBtab files can be
+	    automatically converted into an SQLite database, using the package 
+	    <a href="https://github.com/tlubitz/SBtab/tree/master/python/sqlite_interface">
+	      sqlite_interface</a> within the GitHub SBtab repository. This feature
+	    can be useful for developers that would like to allow users to upload
+	    their data in the form of SBtab into a web service, and using SQL to
+	    query the data using standard web development tools.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>R code</h2>
+	  <p>
+	    The R project is a widespread and powerful software framework for
+	    statistical computing and graphics. We  provide a simple
+	    interface that allows R users to import the SBtab python code into
+	    their R projects, manipulate SBtab objects, call Python functions from
+	    within the R environment. For this, we  use the rPython library,
+	    which needs to be preinstalled to employ the provided code.  The R
+	    files, which can be found in the SBtab repository on Github, exemplify
+	    how this can be done.</p>
+	  <ol>
+	    <li>SBtab objects can be created via the Python interface.</li>
+	    <li>SBtab tables can be validated and the output stored as R
+	      variable</li>
+	    <li> SBtab tables can be edited (adding/removing rows, attributes,
+	      or columns) from within R</li>
+	    <li> SBtab tables can be converted to SBML and vice versa, where the
+	      output can be stored as R file objects</li>
+	  </ol>
+	  <p>Alongside these rPython-based approaches, we also translated the
+	    creation of an SBtab file document (including one or more SBtabs) from
+	    Python directly into the R language. These example files are stored in
+	    the directory /R/
+	    on <a href="https://github.com/tlubitz/SBtab">Github</a>.  We hope
+	    that these elucidations will help R programmers to integrate SBtab
+	    files and functionalities into their projects.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>Matlab code</h2>
+	  <p>
+	    Matlab code for  SBtab can be downloaded  from 
+	    <a href="https://github.com/liebermeister/sbtab-matlab">Github</a>.
+	  </p>
+	</article>
+	    
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+
+
+  <div class="container-fluid bg-4 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+	<h1>SBtab Compliant Files</h1>
+	<article>
+	  <h2>How to make table files SBtab-compliant?</h2>
+	  <p>
+	    SBtab tables are normal data tables
+	    (spreadsheets or delimited text files), but to enable an easy
+	    exchange of data, the tables themselves, in particular column
+	    titles, need to respect certain rules. You can make your own table
+	    files SBtab-compliant by a  number of small changes.
+	  </p>
+	  <h2>To make a single table SBtab-compliant</h2>
+	  <ol>
+	    <li>Choose an SBtab table type appropriate  for your table (for a list, see the SBtab specification).</li> 
+	    <li>Insert a declaration line (starting with "!!SBtab") as the first line of your table and declare the table type by an attribute "TableType='...'" in the same line.</li>
+	    <li>Unique identifers can be given in a
+	      column "!ID". The elements in this column serve as shortnames,
+	      to be referenced in other tables, and must therefore be unique
+	      (e.g., unique gene names).</li>
+	    <li>Choose which other columns of your table should be SBtab-compliant. For each of them,  use a standard column name, starting with "!", existing the chosen table type (for a list, see the SBtab specification); and  make sure that the data match the column type (e.g., "!Value" columns must contain numbers; see the SBtab specification). </li>
+	    <li>In columns containing biological  annotations (e.g., database identifiers for chemical compounds), use column names as described in the  SBtab specification. </li>
+	  </ol>
+
+	  <h2>To make a whole document SBtab-compliant</h2>
+	  <ol>
+	    <li>Make sure that all tables are SBtab-compliant</li>
+	    <li>Make sure that shortnames are consistently used throughout the tables</li>
+	    <li>Declare  the common document name in the declaration line of each table</li>
+	  </ol>
+	  <p>To check your SBtab files for correct syntax, 
+	    use the <a href="https://www.sbtab.net/sbtab/default/validator">online validator</a>.
+	  </p>
+	</article>
+	<article>
+	  <h2>Interoperability</h2>
+	  <p>SBtab can be used together with a number of
+	    tools and programming languages:
+	  </p>
+	  
+	  <div class="list-group">
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>MS Excel</h3>
+	    </div>
+	    <p class="mb-1">
+	      SBtab files can be
+	      edited with MS Excel. The SBtab format concerns only the contents of
+	      cells. Other Excel functionality, such as colours, macros, or links
+	      between cells, are not supported by SBtab and should not be used to
+	      encode information.  In Excel, SBtab tables can be imported from /
+	      exported to .xls and .tsv (tab-delimited)
+	      or .csv (comma-delimited) 
+	      format. An <a href="https://www.sbtab.net/sbtab/default/documentation.html">Excel Add-in</a> supporting SBtab is
+	      freely available.
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>OpenOffice/LibreOffice</h3>
+	    </div>
+	    <p class="mb-1">
+	      SBtab files can be edited with OpenOffice and LibreOffice. As in the
+	      case of Excel, functionality such as colours, macros, or links between
+	      cells, are not supported by SBtab and should not be used to encode
+	      information.  SBtab tables can be imported from / exported to .xls and
+	      .tsv (tab-delimited) or .csv (comma-delimited) format. Note that some
+	      versions of LibreOffice do not recognise the .tsv filename
+	      extension. In this case, it is recommended to simply rename the files,
+	      replacing ".tsv" by ".csv".
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>Python3</h3>
+	    </div>
+	    <p class="mb-1">
+	      Python3 code for
+	      loading and saving SBtab in Python, as well as for validation and
+	      conversion to and from SBML, is
+	      available <a href="https://www.sbtab.net/sbtab/default/documentation.html">here</a>.  The python code expects
+	      SBtab files to be in tab- or comma-separated text format and supports
+	      .xls files. There is also support for pandas. The method toDataFrame()
+	      requires no arguments, and returns a pandas.DataFrame() object with
+	      the data that is in the SBtab, including the column names.
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>MATLAB</h3>
+	    </div>
+	    <p class="mb-1">
+	      Code for importing
+	      and exporting SBtab files in MATLAB is
+	      available <a href="https://www.sbtab.net/sbtab/default/documentation.html">here</a>.  The MATLAB toolbox expects
+	      SBtab files to be in tab-separated text format and does not support
+	      .xls files.
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>R</h3>
+	    </div>
+	    <p class="mb-1">
+	      The R project is a
+	      widespread and powerful software framework for statistical computing
+	      and graphics. We provide a simple interface that allows R users to
+	      import the SBtab python code into their R projects, manipulate SBtab
+	      objects, call Python functions from within the R environment.  Code is
+	      available in <a href="https://www.sbtab.net/sbtab/default/documentation.html">the Code Section</a>
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>SBML (Systems Biology Markup Language)</h3>
+	    </div>
+	    <p class="mb-1">
+	      The conversion between SBtab
+	      and <a href="http://www.sbml.org">SBML</a> (versions L2V4 or L3V1),
+	      can be done on this website or using the python tools. Details are
+	      described in the SBtab specification.
+	    </p>
+	    
+	    <div class="d-flex w-100 justify-content-between">
+	      <h3>Relational databases</h3>
+	    </div>
+	    <p class="mb-1">
+	      SBtab
+	      is structured in a way that makes it easy to express tables from
+	      relational databases in SBtab. Tables of type "Relationship" can be
+	      used to link other tables. However, the opposite is not true: SBtab
+	      does not impose normal forms, and it allows to link information in
+	      ways that would not be allowed in relational databases. However, a
+	      main feature of relational databases, unique keys for all tables,
+	      exists in SBtab.  By default, each table must begin with a column
+	      whose name matches the name of the table type and whose entries serve
+	      as unique keys for the table rows. To relieve this requirement, the
+	      table attribute UniqueKeyColumn='False' must be set in the table's
+	      declaration line. Python code for setting up an SQlight database and
+	      querying it through a simple python interface is
+	      available in <a href="https://www.sbtab.net/sbtab/default/documentation.html">the Code Section</a>.
+	    </p>
+	  </div>
+	</article>
+	
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+  
+  <div class="container-fluid bg-3 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">
+	<h1>Frequently Asked Questions (FAQ)</h1>
+	<article>
+	  <p>
+	    In any case of encountered errors or arising questions with this website, its tools, and plugins, please don't hesitate to contact <a href="mailto:timo.lubitz@gmail.com">Timo Lubitz</a>. However, many problems may be sorted out by having a close look to this troubleshooting page. It enlists several troubles that users had and offers solutions.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>I cannot upload and/or convert my SBML file to SBtab.</h2>
+	  <p>
+	    The SBML to SBtab converter requires SBML code Level 2, Version 4, or higher. Please make sure that your SBML file has the correct file extension (.xml or .sbml) and if this not helps, consult the <a href="http://sbml.org/validator">online SBML validator</a> to ensure that your file is valid SBML.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>My SBtab file cannot be uploaded.</h2>
+	  <p>
+	    SBtab files can be uploaded as long as they have the right file extension. Possible extensions are .csv, .tsv, .xls. However, if you still cannot upload your SBtab file, please consult the SBtab example files that are provided in the <a href="https://www.sbtab.net/sbtab/default/downloads.html">Files Section</a>.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>When I open my SBtab file with Excel or LibreOffice, the columns are not separated correctly.</h2>
+	  <p>
+	    This can happen when the spreadsheet tool does not identify the delimiter of the file correctly. Some version of LibreOffice cannot deal with tsv files; in this case it suffices to rename your file extension from tsv to csv and then it works. In any case, all tools offer the possibility to choose the delimiter for the columns. This happens usually on startup of the software (LibreOffice) or can be chosen via the Text Import Wizard (MS Excel).
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>My SBtab file cannot be converted to SBML.</h2>
+	  <p>
+	    Note that not *all* SBtab files can be converted to SBML, they need to contain model structure information. Thus, the conversion requires at least a Reaction or Compound SBtab file. Of course, combinations are feasible, as long as one of these mandatory files is provided. If the conversion still does not work, try and validate the files you are using on the <a href="https://www.sbtab.net/sbtab/default/validator.html">SBtab validator page</a>. If there is no validation warning, but the conversion still does not work, please look at the <a href="https://www.sbtab.net/sbtab/default/downloads.html">SBtab example files</a> and consult the specification. Oftentimes, it can be helpful to view the SBtab file with a text editor instead of Excel/Open Office; this enables the user to see the file completely unformatted and identify possible problems.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>The Excel add-in cannot be installed properly.</h2>
+	  <p>
+	    This can have several reasons. First, verify that all required pre-requisites are fulfilled for the add-in to work (see <a href="https://www.sbtab.net/sbtab/default/documentation.html">add-in page</a>). Then, in Excel you can edit the "SBtab settings" in the SBtab add-in menu. Click the button and make sure that the paths are set correctly: the Python interpreter should be set to the installation directory "xlSBtab/python/python.exe" and the SBtab path should be set to "xlSBtab/SBtab/scripts". The installation directory xlSBtab can usually be found in "/Program Files/" or "/Program Files (x86)/", depending on your system.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>I converted SBtab to SBML, but the SBML is invalid.</h2>
+	  <p>
+	    During the conversion from SBtab to SBML, kinetic laws from the SBtab file can be converted to SBML code. This is a complex process and the kinetic laws provided by the user are not checked for causality: If the user provides erroneous laws, the resulting SBML file will be invalid. The same scenario holds for rules (algebraic, rate, or assignment). In future, SBtab will also comprise validity checks of kinetic laws and rules in SBtabs, but currently this is not the case. By using the <a href="http://sbml.org/validator">SBML online validator</a>, you can always find out which other invalidities an SBML file might hold.
+	  </p>
+	</article>
+	
+	<article>
+	  <h2>There seems to be a chaos in the submitted SBtab and SBML files in my browser session.</h2>
+	  <p>
+	    This can happen from time to time while extensive uploading and downloading of files from the server side. Simply click on this <a href="https://www.sbtab.net/sbtab/default/clearsession">clear</a> link to clear all files from your current session and start new.
+	  </p>
+	</article>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+
+  <div class="container-fluid bg-4 text-center">
+    <div class="row" align="left">
+      <div class="col-sm-3"></div>
+      <div class="col-sm-6 textblock">	
+	<article>
+	  <h2>Citing SBtab</h2>
+	  <p>Lubitz T., Hahn J., Bergmann F.T., Noor E., Klipp E., Liebermeister W.
+	    (2016), SBtab: A flexible table format for data exchange in systems
+	    biology,
+	    <a href="http://bioinformatics.oxfordjournals.org/content/early/2016/04/08/bioinformatics.btw179.abstract?keytype=ref&ijkey=xiEXADxtPPlY9uz">  Bioinformatics (2016)</a></p>
+	</article>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{{end}}

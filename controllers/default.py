@@ -20,31 +20,16 @@ import copy
 def index():
     return dict()
 
-def introduction():
+def gettingstarted():
     return dict()
 
-def specification():
+def documentation():
     return dict()
 
-def code():
-    return dict()
-
-def troubles():
+def downloads():
     return dict()
 
 def team():
-    return dict()
-
-def faq():
-    return dict()
-
-def files():
-    return dict()
-
-def sbtab_models():
-    return dict()
-
-def sbtab_compliance():
     return dict()
 
 def clearsession():

@@ -1,10 +1,24 @@
 /* css stylesheet for proteomap web pages */
 
+html {
+    overflow-y: scroll;
+}
+
 body {background-color:#ffffff; color: #404040; font-size: 14px}
 
 h1,h2,h3,h4,p,ul,ol,li,div,td,th,address,blockquote,nobr,b,i { font-family:Arial,sans-serif; }
 
-h1 { font-size:30px; margin-bottom:26px; }
+.navbar {
+    width: 1170px;
+    margin: auto;
+    padding-bottom:60px;
+}
+
+.jumbotron {
+    padding-top:60px;
+}
+
+h1 { font-size:30px; margin-bottom:26px; text-align:center;}
 
 h2 { font-size:21px; margin-bottom:18px; }
 
@@ -12,7 +26,30 @@ h3 { font-size:18px; }
 
 h4 { font-size:14px; }
 
-p {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margin-left:10px; width:720px;}
+p {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margin-left:10px; line-height:2;}
+
+.sb {
+    width:80px;
+}
+
+.bg-3 {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+.bg-4 {
+    background-color: #fafafa;
+    padding-top: 50px;
+    padding-bottom: 30px;
+}
+
+.inline_link {
+    font-size:15px!important;
+}
+
+.dropdown {
+    padding-top:15px;
+}
 
 p.short {width:640px;}
 
