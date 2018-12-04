@@ -18,6 +18,8 @@ h1,h2,h3,h4,p,ul,ol,li,div,td,th,address,blockquote,nobr,b,i { font-family:Arial
     padding-top:60px;
 }
 
+
+
 h1 { font-size:30px; margin-bottom:26px; text-align:center;}
 
 h2 { font-size:21px; margin-bottom:18px; }
@@ -38,7 +40,7 @@ p {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margi
 }
 
 .bg-4 {
-    background-color: #fafafa;
+    background-color: #E2E2E2;
     padding-top: 50px;
     padding-bottom: 30px;
 }
@@ -51,13 +53,23 @@ p {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margi
     padding-top:15px;
 }
 
+ul_text {
+    text-decoration:underline;
+}
+
 p.short {width:640px;}
 
-ul,ol,li,div,td,th,address,blockquote { color: #404040; font-size:14px; "Arial,Helvetica"; }
+td, th {
+    color: #404040;
+    font-size:12px;
+    "Arial,Helvetica"; 
+}
+
+ul,ol,li,div,address,blockquote { color: #404040; font-size:14px; "Arial,Helvetica"; }
 
 table {color: #404040; font-face: "Arial,Helvetica"; font-size: 14px}
 
-td {color: #000000; font-face: "Arial,Helvetica"; font-size: 14px}
+td {color: #000000; font-face: "Arial,Helvetica"; font-size: 12px}
 
 ol {list-style-type:circle;}
 
@@ -108,11 +120,20 @@ mydownscale { font-size: 0.7em;}
     padding-left: 20px;
 }
 
-.textblock > p {
+.textblock p {
     text-align:center;
     font-size: 16px;
     line-height:2;
     padding-bottom:15px;
+    width:100%;
+}
+
+.textblockleft p {
+    text-align:left;
+    font-size: 16px;
+    line-height:2;
+    padding-bottom:15px;
+    width:100%;
 }
 
 .textblock > p > a {
