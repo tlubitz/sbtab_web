@@ -117,17 +117,17 @@
 	  </div>
 
 	  {{for f in WARNINGS:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    &bull; {{=f}}
 	  </div>
 	  {{pass}}
 
 	  {{elif WARNINGS:}}
-	  <div style="text-align:center;width:100%;">
-	    {{=WARNINGS[0]}}
+	  <div style="text-align:left;width:100%;">
+	    &bull; {{=WARNINGS[0]}}
 	  </div>
 	  {{else:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    <strong>File validation of {{=SBTAB_VAL}}:</strong>
 	    No file warnings detected.
 	  </div>
@@ -150,17 +150,17 @@
 
 	  {{elif OUTPUT:}}
 	  <div style="text-align:left;width:100%;">
-	    {{=WARNINGS[0]}}
+	    &bull;  {{=WARNINGS[0]}}
 	  </div>
 	  
 	  {{if DEF_FILE_NAME:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    The definition file <strong>{{=DEF_FILE_NAME}}</strong> is used for validation.
 	  </div>
 	  {{pass}}
 
 	  {{else:}}
-	  <div style="text-align:center;width:100%;">
+	  <div style="text-align:left;width:100%;">
 	    No validation errors detected.
 	  </div>
 	  {{pass}}
