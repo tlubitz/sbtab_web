@@ -18,8 +18,6 @@ h1,h2,h3,h4,p,ul,ol,li,div,td,th,address,blockquote,nobr,b,i { font-family:Arial
     padding-top:60px;
 }
 
-
-
 h1 { font-size:30px; margin-bottom:26px; text-align:center;}
 
 h2 { font-size:21px; margin-bottom:18px; }
@@ -29,6 +27,8 @@ h3 { font-size:18px; }
 h4 { font-size:14px; }
 
 p {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margin-left:10px; line-height:2;}
+
+ol {color: #202020; font-size:14px; "Arial,Helvetica";  text-align:justify; margin-left:10px; line-height:2;}
 
 .sb {
     width:80px;
