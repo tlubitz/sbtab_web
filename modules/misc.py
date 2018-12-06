@@ -116,7 +116,6 @@ def sbtab_to_html(sbtab, filename=None, mode='sbtab_online'):
         for SBtab Documents
         '''
         no_link = ['(',')','+','-','<=>','or','and','FbcOr','FbcAnd']
-
         # get column descriptions for this table type and possible shortname links
         try: (col2description,col2link) = find_descriptions(sbtab_def, sbtab.table_type)
         except:
@@ -185,12 +184,13 @@ def sbtab_to_html(sbtab, filename=None, mode='sbtab_online'):
     ##############################################################################
     # read in header and footer from HTML template
     if mode == 'sbtab_online':
-        html_template = open('template_sbtab_online.html', 'r').read()
+        p = os.path.join(os.path.dirname(__file__), '../modules/template_sbtab_online.html')
+        html_template = open(p, 'r').read()
     elif mode == 'standalone':
         html_template = open('template_standalone.html', 'r').read()
     else:
         print('Invalid mode %s. Please use either "sbtab_online" or "standalone".' % mode)
-        
+
     try:
         header = re.search('(<html lang="en">.*<main>)', html_template, re.DOTALL).group(0)
         footer = re.search('(</main>.*</html>)', html_template, re.DOTALL).group(0)

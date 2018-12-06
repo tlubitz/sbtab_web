@@ -704,7 +704,7 @@ def show_sbtab_def():
     try: sbtab_def = session.definition_file
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly. Please reload session (Troubleshooting page).'
 
-    try: return misc.tsv_to_html(sbtab_def.to_str(), sbtab_def.filename)
+    try: return misc.sbtab_to_html(sbtab_def)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
 
@@ -715,7 +715,7 @@ def show_sbtab():
     try: sbtab = session.sbtabs[int(request.args(0))]
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
-    try: return misc.tsv_to_html(sbtab.to_str(), sbtab.filename)
+    try: return misc.sbtab_to_html(sbtab)
     except: return 'There is something wrong with this SBtab file. It cannot be loaded properly.'
 
 
@@ -734,7 +734,8 @@ def show_sbml():
     '''
     displays a given SBML file
     '''
-    return misc.xml2html(session.sbmls[int(request.args(0))])
+    return misc.xml_to_html(session.sbmls[int(request.args(0))])
+
 
 def user():
     """
