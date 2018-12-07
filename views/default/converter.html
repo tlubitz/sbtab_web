@@ -160,15 +160,15 @@
 	</section>
 
 
-	<section>
+	<section style="text-align:left">
 	  {{if WARNINGS_CON:}}
-	  <strong>Logfile of warnings for conversion:</strong>
+	  <strong>Logfile of warnings for conversion:</strong><br>
 	  {{if len(WARNINGS_CON)>1:}}
           {{for f in WARNINGS_CON:}} 
-	  <font color="#FF0000" style="text-align:left">&bull; {{=f}}</font>
+	  <font color="#FF0000">&bull; {{=f}}</font><br>
 	  {{pass}}
 	  {{else:}}
-	  <font color="#FF0000" style="text-align:left">&bull; {{=WARNINGS_CON[0]}}</font>
+	  <font color="#FF0000">&bull; {{=WARNINGS_CON[0]}}</font>
 	  {{pass}}
 	</section>
 
