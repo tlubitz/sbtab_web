@@ -496,7 +496,7 @@ def converter():
             for i, s in enumerate(session.sbtabs):
                 if session.name2doc[s.filename] == remove_document:
                     remove_sbtabs.append(i)
-            
+
             # delete sbtabs, names, and types
             remove = sorted(remove_sbtabs, reverse=True)
             for i in remove:
@@ -504,7 +504,7 @@ def converter():
                 del session.sbtabs[i]
                 del session.sbtab_filenames[i]
                 del session.types[i]
-                
+
             # delete document name
             del session.sbtab_docnames[int(request.vars.remove_all_button)]
 
@@ -513,9 +513,8 @@ def converter():
                 del session.name2doc[entry]
 
             session.warnings_con = []
-            #redirect(URL(''))
+            redirect(URL(''))
         except:
-            session.warnings_con.append('Document entries could not be removed. Please reload session.')
             redirect(URL(''))
 
     # erase single SBML
