@@ -108,10 +108,8 @@
 	  
 	</section>
 
-
-
 	<section>
-	  {{if WARNINGS:}}
+	  {{if WARNINGS and SBTAB_VAL:}}
 	  <div style="text-align:left;width:100%;">
 	    <strong>File warnings for {{=SBTAB_VAL}}:</strong>
 	  </div>
@@ -126,10 +124,14 @@
 	  <div style="text-align:left;width:100%;">
 	    &bull; {{=WARNINGS[0]}}
 	  </div>
-	  {{else:}}
+	  {{elif SBTAB_VAL:}}
 	  <div style="text-align:left;width:100%;">
 	    <strong>File validation of {{=SBTAB_VAL}}:</strong>
 	    No file warnings detected.
+	  </div>
+	  {{else:}}
+	  <div style="text-align:left;width:100%;">
+
 	  </div>
 	  {{pass}}	  
 	</section>

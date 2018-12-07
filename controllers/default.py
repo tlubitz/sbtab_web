@@ -70,7 +70,7 @@ def validator():
                                   label='Upload SBtab file (.csv, .tsv, .xlsx)',
                                   requires=IS_LENGTH(10485760, 1,
                                                      error_message='Max upload size: 10MB')))
-    sbtab_val = None
+    filename = None
     output = []
 
 
@@ -78,12 +78,6 @@ def validator():
     if not session.definition_file:
         try:
             sbtab_def = misc.open_definitions_file(os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv')
-            #def_path = os.path.dirname(os.path.abspath(__file__)) + '/../static/files/default_files/definitions.tsv'
-            #def_file_open = open(def_path)
-            #def_file_open = open('/sbtab/static/files/default_files/definitions.tsv')
-            #def_file = def_file_open.read()
-            #definition_name = 'definitions.tsv'
-            #sbtab_def = SBtab.SBtabTable(def_file, definition_name)
             session.definition_file = sbtab_def
             session.definition_file_name = sbtab_def.filename
         except:
@@ -170,7 +164,7 @@ def validator():
     # validate
     if request.vars.validate_button:
         try:
-            sbtab_val = session.sbtab_filenames[int(request.vars.validate_button)]
+            filename = session.sbtab_filenames[int(request.vars.validate_button)]
             TableValidClass = validatorSBtab.ValidateTable(session.sbtabs[int(request.vars.validate_button)], session.definition_file)
             output = TableValidClass.return_output()
         except:
@@ -196,26 +190,37 @@ def validator():
     if request.vars.remove_all_button_val:
         try:
             remove_document = session.sbtab_docnames[int(request.vars.remove_all_button_val)]
+
+            # gather indices of entries to remove
             remove_sbtabs = []
-            for i, docname in enumerate(session.sbtab_docnames):
-                if docname == remove_document:
+            remove_filenames = []
+            for i, s in enumerate(session.sbtabs):
+                if session.name2doc[s.filename] == remove_document:
                     remove_sbtabs.append(i)
+
+            # delete sbtabs, names, and types
             remove = sorted(remove_sbtabs,reverse=True)
-            for i in remove:
-                del session.sbtabs[i]
-                del session.name2doc[session.sbtab_filenames[i]]
-                del session.sbtab_filenames[i]
-                del session.types[i]
-                del session.sbtab_docnames[i]
-                session.warnings_val = []
+            for rs in remove:
+                remove_filenames.append(session.sbtab_filenames[rs])
+                del session.sbtabs[rs]
+                del session.sbtab_filenames[rs]
+                del session.types[rs]
+
+            # delete document name
+            del session.sbtab_docnames[int(request.vars.remove_all_button_val)]
+
+            # delete name2doc entries
+            for entry in remove_filenames:
+                del session.name2doc[entry]
+
+            session.warnings_val = []
             redirect(URL(''))
-        except:
-            session.warnings_val.append('The document could not be removed. Please reload session.')
-            redirect(URL(''))
+        except: redirect(URL(''))
+
 
     return dict(UPL_FORM=lform, DEF_FILE_NAME=session.definition_file_name,
                 SBTAB_LIST=session.sbtabs, NAME_LIST=session.sbtab_filenames,
-                SBTAB_VAL=sbtab_val, DOC_NAMES=session.sbtab_docnames,
+                SBTAB_VAL=filename, DOC_NAMES=session.sbtab_docnames,
                 NAME2DOC=session.name2doc, OUTPUT=output,
                 WARNINGS=session.warnings_val)
 
@@ -484,20 +489,34 @@ def converter():
     if request.vars.remove_all_button:
         try:
             remove_document = session.sbtab_docnames[int(request.vars.remove_all_button)]
+
+            # gather indices of entries to remove
             remove_sbtabs = []
-            for i, sbtab in enumerate(session.sbtab_filenames):
-                if session.name2doc[sbtab] == remove_document:
+            remove_filenames = []
+            for i, s in enumerate(session.sbtabs):
+                if session.name2doc[s.filename] == remove_document:
                     remove_sbtabs.append(i)
+            
+            # delete sbtabs, names, and types
             remove = sorted(remove_sbtabs, reverse=True)
             for i in remove:
-                del session.name2doc[session.sbtab_filenames[i]]
+                remove_filenames.append(session.sbtab_filenames[i])
                 del session.sbtabs[i]
                 del session.sbtab_filenames[i]
                 del session.types[i]
-            session.warnings_con = []
+                
+            # delete document name
             del session.sbtab_docnames[int(request.vars.remove_all_button)]
+
+            # delete name2doc entries
+            for entry in remove_filenames:
+                del session.name2doc[entry]
+
+            session.warnings_con = []
             #redirect(URL(''))
-        except: redirect(URL(''))
+        except:
+            session.warnings_con.append('Document entries could not be removed. Please reload session.')
+            redirect(URL(''))
 
     # erase single SBML
     if request.vars.erase_sbml_button:
