@@ -441,12 +441,25 @@
 		Choose "Validator" from the "Online Tools" (click on image to enlarge).
 	      </figcaption>
 	    </figure>
-	    
-	  <p>
-	    You can either provide them as three separate SBtab files or as one
-	    SBtab document with three tables.
-	    ...
 	  </p>
+	  <p>
+	    You can either provide them as separate SBtab tables or as one
+	    SBtab document consisting of >=1 tables. Next, each SBtab is listed
+	    separately in the interface and its syntax can be validated by clicking
+	    the corresponding <code>Validate</code> button. If any invalidities
+	    occur, warning and error messages will be issued on the bottom of the
+	    page. These messages are separated in file validation (is the file
+	    valid, e.g. the format and encryption) and file content validation
+	    (e.g. are all mandatory attributes set and do the column names correspond
+	    to the given table type).
+	    <figure style="margin-bottom:30px;text-align:center;">
+	      <a href="../static/images/validator_example_02.png" target="_blank">
+		<img width="80%" src="../static/images/validator_example_02.png" alt="SBtab Tutorial SBML Validator" style="border-style: solid;border-width: 2px;">
+	      </a>
+	      <figcaption style="font-style:italic;">
+		Choose an SBtab file to validate and see warning/error messages on the bottom of the page (click on image to enlarge).
+	      </figcaption>
+	    </figure>
 	  </p>
 	</article>
       </div>
@@ -459,12 +472,12 @@
       <div class="col-sm-3"></div>
       <div class="col-sm-6 textblockleft">
 	<article>
-	  <h2>How do I convert these SBtabs to SBML?</h2>
+	  <h2>How do I convert SBtabs to SBML?</h2>
 	  <p>
 	    The SBtab files can be uploaded to the
 	    <a href="https://www.sbtab.net/sbtab/default/converter">SBML Online Converter</a>.
 	    Simply click on "Online Tools" link in the navigation bar and choose "SBML Converter":
-
+	  </p>
 	    <figure style="margin-bottom:30px;text-align:center;">
 	      <a href="../static/images/conversion_example_01.png" target="_blank">
 		<img width="80%" src="../static/images/conversion_example_01.png" alt="SBtab Tutorial SBML Converter" style="border-style: solid;border-width: 2px;">
@@ -473,11 +486,32 @@
 		Choose "SBML Converter" from the "Online Tools" (click on image to enlarge).
 	      </figcaption>
 	    </figure>
-	    
+
+	  
 	  <p>
-	    You can either provide them as three separate SBtab files or as one
-	    SBtab document with three tables. ...
+	    You can either provide them as separate SBtab tables or as one
+	    SBtab document with >=1 tables. Only SBtabs with model information
+	    can be translated to SBML (i.e. SBtabs with the table types Compartment,
+	    Reaction, Compound, Quantity, Layout, and FbcObjective). If you have
+	    submitted more than one SBtabs (as in the screenshot below), you can
+	    either convert these into seperate SBML files by using the Convert to
+	    SBML buttons next to the file name or you can convert all SBtabs into
+	    one SBML file via the Convert to SBML button on the top of the list
+	    (grey area).
 	  </p>
+	    <figure style="margin-bottom:30px;text-align:center;">
+	      <a href="../static/images/conversion_example_02.png" target="_blank">
+		<img width="80%" src="../static/images/conversion_example_02.png" alt="SBtab Tutorial SBML Converter" style="border-style: solid;border-width: 2px;">
+	      </a>
+	      <figcaption style="font-style:italic;">
+		Convert SBtab files to one SBML model file (click on image to enlarge).
+	      </figcaption>
+	    </figure>
+	  <p>
+	    If warnings occurred during the conversion process, these are issued
+	    on the bottom of the page in red lettering. We recommend to validate
+	    your SBtab files prior to conversion. The conversion from
+	    SBML to SBtab works analogously to the other direction.
 	  </p>
 	</article>
       </div>
@@ -504,7 +538,7 @@
 	    in our list of table types, you can create your own TableType and add
 	    it to the default definitions file. Then, you can upload your definitions.tsv
 	    in the <a href="https://www.sbtab.net/sbtab/default/converter">SBtab customiser</a>.
-
+	  </p>
 	    <figure style="margin-bottom:30px;text-align:center;">
 	      <a href="../static/images/customiser_example_01.png" target="_blank">
 		<img width="80%" src="../static/images/customiser_example_01.png" alt="SBtab Tutorial Customiser" style="border-style: solid;border-width: 2px;">
@@ -513,10 +547,10 @@
 		Choose "Customise SBtab" from the "Online Tools" (click on image to enlarge).
 	      </figcaption>
 	    </figure>
-	    
 	  <p>
-	    ...
-	  </p>
+	    When you have uploaded your customised definitions file, you can upload your
+	    SBtab files in the SBtab validator and check if they adhere to your individualised
+	    table definitions.
 	  </p>
 	</article>
       </div>
