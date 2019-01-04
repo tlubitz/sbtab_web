@@ -228,15 +228,123 @@
 	  <div class="example_box">
 	  <p style="margin-bottom:0px;padding-bottom:0px;">
 	    <strong>Example 7:</strong>
-	    The glycolysis model of Teusink et al. in SBtab representation. The model is taken from the <a href="http://www.ebi.ac.uk/biomodels-main/">Biomodels Database</a>.
+	    The glycolysis model of Teusink et al. (2000) in SBtab representation. The SBML model was taken from the <a href="http://www.ebi.ac.uk/biomodels-main/">BioModels Database</a>
+	    and translated to SBtab with our <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>.
+	    The origins of the collected data are given in the reference column of the Quantity SBtab.
 	  </p>
 	  <ol>
 	    <li>
 	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/teusink/teusink_modeldata.tsv">Teusink Model</a>
 	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/teusink/teusink_data.tsv">Teusink Data</a>
+	    </li>
 	  </ol>
 	  </div>
 	</article>
+
+	<article>
+	  <div class="example_box">
+	  <p style="margin-bottom:0px;padding-bottom:0px;">
+	    <strong>Example 8: Pancreatic Beta Cell Model</strong>
+	    Jiang's model of the glucose-stimulated secretion system in pancreatic beta cells
+	    (Jiang et al.,2007) is one of the largest kinetic models in <a href="http://www.ebi.ac.uk/biomodels-main/">BioModels Database</a>.
+	    The SBML model was translated to SBtab with our <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>.
+	    The origins of the collected data are given in the reference column of the Quantity SBtab.
+	  </p>
+	  <ol>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/jiang/jiang_modeldata.tsv">Jiang Model</a>
+	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/jiang/jiang_data.tsv">Jiang Data</a>
+	    </li>
+	  </ol>
+	  </div>
+	</article>
+
+	<article>
+	  <div class="example_box">
+	  <p style="margin-bottom:0px;padding-bottom:0px;">
+	    <strong>Example 9: E.coli Model Noor</strong>
+	    Noor's model of E.coli (2016).
+	    The original SBML model was translated to SBtab with our <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>.
+	  </p>
+	  <ol>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/ecoli/ecoli_noor_2016_model.tsv">Noor E.coli Model</a>
+	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/ecoli/ecoli_noor_2016_data.tsv">Noor E.coli Data</a>
+	    </li>
+	  </ol>
+	  </div>
+	</article>
+
+	<article>
+	  <div class="example_box">
+	  <p style="margin-bottom:0px;padding-bottom:0px;">
+	    <strong>Example 10: E.coli Model Wortel</strong>
+	    Wortel's model of E.coli (2018).
+	    The original SBML model was translated to SBtab with our <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>.
+	  </p>
+	  <ol>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/ecoli/ecoli_wortel_2018_model.tsv">Wortel E.coli Model</a>
+	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/ecoli/ecoli_wortel_2018_data.tsv">Wortel E.coli Data</a>
+	    </li>
+	  </ol>
+	  </div>
+	</article>
+	
+	<article>
+	  <div class="example_box">
+	  <p style="margin-bottom:0px;padding-bottom:0px;">
+	    <strong>Example 11: Translation of SBML Level 3 FBC Package</strong>
+	    We have exemplified the translation of the content of SBML3 FBC package to SBtab with the Genome-scale metabolic model of Mus Musculus by
+	    Sigurdsson et al. (2010). The model is taken from the <a href="http://www.ebi.ac.uk/biomodels-main/">BioModels Database</a>
+	    and translated to SBtab with our <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>. The conversion yields
+	    an SBtab document consisting of the SBtabs <code>Compartment</code>, <code>Compound</code>, <code>Reaction</code>, <code>Quantity</code>,
+	    <code>FbcObjective</code>, and <code>Gene</code>. The FBC information extracted from the SBML is comprised in the <code>FbcObjective</code>
+	    and <code>Gene</code> SBtabs, as well as in additional fbc columns of <code>Compound</code> and <code>Reaction</code>. For details, see
+	    the <a href="#spec">SBtab specification</a>.
+
+	  </p>
+	  <ol>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/sigurdsson/sigurdsson_model.xml">Sigurdsson FBC Model SBML</a>
+	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/sigurdsson/sigurdsson_model.tsv">Sigurdsson FBC Model SBtab</a>
+	    </li>
+	  </ol>
+	  </div>
+	</article>
+	
+	<article>
+	  <div class="example_box">
+	  <p style="margin-bottom:0px;padding-bottom:0px;">
+	    <strong>Example 12: Translation of SBML Level 3 Layout Package</strong>
+	    We have exemplified the translation of the content of SBML3 Layout package to SBtab with a small test SBML model consisting of
+	    two reactions, two species, and corresponding layout information. The model was translated to SBtab with our
+	    <a href="https://www.sbtab.net/sbtab/default/converter.html">SBML Converter</a>. The conversion yields
+	    an SBtab document consisting of the SBtabs <code>Compartment</code>, <code>Compound</code>, <code>Reaction</code>, and <code>Layout</code>.
+	    The layout information extracted from the SBML is comprised in the <code>Layout</code> SBtab.
+	    For details, see the <a href="#spec">SBtab specification</a>.
+
+	  </p>
+	  <ol>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/layout/layout_model.xml">Layout Example Model SBML</a>
+	    </li>
+	    <li>
+	      <a href="https://www.sbtab.net/sbtab/static/files/example_files/layout/layout_model.tsv">Layout Example Model SBtab</a>
+	    </li>
+	  </ol>
+	  </div>
+	</article>	
 
 	
       </div>
