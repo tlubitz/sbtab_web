@@ -166,7 +166,7 @@ del {
     width:20%;
 }
 
-.show_mobile {
+.show-mobile {
     display:block;
 }
 
@@ -422,7 +422,7 @@ article {
 	width:20%;
     }
 
-    .show_mobile {
+    .show-mobile {
 	display:block;
     }
 
@@ -539,13 +539,25 @@ article {
 	margin-bottom:0;
     }
     
-    .show_mobile {
+    .show-mobile {
 	display:none;
     }
 
     .hide-mobile {
 	display:block;
     }    
+
+    .textblock {
+	margin:0;
+	flex-basis:50%;
+	max-width:100%;
+    }
+
+    .textblockleft {
+	margin:0;
+	flex-basis:50%;
+	max-width:100%;
+    }
     
     .nav-container {
 	padding-bottom:10px;
