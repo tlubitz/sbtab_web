@@ -548,8 +548,7 @@ article {
     }    
 
     .textblock {
-	margin:0;
-	flex-basis:50%;
+	margin-right:50%;
 	max-width:100%;
     }
 
@@ -734,6 +733,9 @@ article {
     #no_table_File__row > td {
 	width:100%;
 	height: 30px;
+    }
+    #no_table_File {
+	padding-bottom:15px;
     }
     .w2p_fl {
 	width:50% !important;
