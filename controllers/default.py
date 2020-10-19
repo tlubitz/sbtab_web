@@ -537,12 +537,15 @@ def converter():
             reader = libsbml.SBMLReader()
             sbml_model = reader.readSBMLFromString(session.sbmls[int(request.vars.c2sbtab_button)])
             filename = session.sbml_filenames[int(request.vars.c2sbtab_button)]
+
             # convert SBML to SBtab Document
-            ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(),filename)
-            (sbtab_doc, session.warnings_con) = ConvSBMLClass.convert_to_sbtab()
+            ConvSBMLClass = sbml2sbtab.SBMLDocument(sbml_model.getModel(), filename)
+            (sbtab_doc, objtables_doc, session.warnings_con) = ConvSBMLClass.convert_to_sbtab()
+
             if sbtab_doc.sbtabs == []:
                 session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
                 redirect(URL(''))
+
             # append generated SBtabs to session variables
             for sbtab in sbtab_doc.sbtabs:
                 if 'sbtabs' not in session:
@@ -561,6 +564,7 @@ def converter():
                         if sbtab_doc.name not in session.sbtab_docnames:
                             session.sbtab_docnames.append(sbtab_doc.name)
                         session.types.append(sbtab.table_type)
+
         except:
             session.warnings_con = ['The SBML file seems to be invalid and could not be converted to SBtab.']
             redirect(URL(''))
