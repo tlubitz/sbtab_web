@@ -411,7 +411,6 @@ def converter():
                                                 'ady been uploaded. Please rename'\
                                                 ' your SBtab file/s before SBML c'\
                                                 'reation.' % filename_new)
-            redirect(URL(''))
         except:
             session.warnings_con.append('The conversion of SBtab %s to SBML was n'\
                                         'ot successful.' % sbtab.filename)
